@@ -572,18 +572,18 @@ function App() {
   for (let mi = -9; mi <= 9; mi++) milPositions.push(mi);
 
   const renderCardContent = (card, isSmall) => {
-    const fontSize = isSmall ? '0.55rem' : '0.65rem';
-    const titleSize = isSmall ? '0.55rem' : '0.7rem';
+    const titleSize = isSmall ? '0.6rem' : '0.7rem';
+    const symbolSize = isSmall ? '1rem' : '1.2rem';
+    const smallText = isSmall ? '0.55rem' : '0.6rem';
     return (
-      <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',padding:'3px'}}>
-        <div style={{fontWeight:'bold',fontSize:titleSize,marginBottom:'3px',textAlign:'center'}}>{card.name}</div>
-        {card.cost && Object.keys(card.cost).length > 0 && <div style={{fontSize:'0.55rem',color:'#ffd',marginBottom:'2px'}}>{Object.entries(card.cost).map(([k,v]) => `${v}${RES_ICON[k]||k}`).join(' ')}</div>}
-        {card.prod && <div style={{background:'rgba(255,255,255,0.2)',padding:'1px 4px',borderRadius:'2px',fontSize,marginBottom:'2px'}}>+{Object.entries(card.prod).map(([k,v]) => `${v}${RES_ICON[k]||k}`).join(' ')}</div>}
-        <div style={{fontSize}}>{card.pts ? `★${card.pts} ` : ''}{card.mil ? `⚔️${card.mil} ` : ''}{card.sci ? '🔬 ' : ''}</div>
-        {card.type === 'yellow' && card.coins && <div style={{background:'rgba(255,215,0,0.3)',padding:'2px 5px',borderRadius:'3px',fontSize,marginTop:'2px',border:'1px solid gold'}}>+{card.coins}💰</div>}
-        {card.type === 'purple' && <div style={{marginTop:'2px',textAlign:'center'}}>
-          {card.coins && <div style={{background:'rgba(255,215,0,0.3)',padding:'1px 4px',borderRadius:'2px',fontSize:'0.5rem',marginBottom:'1px'}}>+{card.coins}💰</div>}
-          {card.ptsPer && <div style={{background:'rgba(255,255,255,0.25)',padding:'2px 4px',borderRadius:'3px',fontSize:'0.5rem',border:'1px solid #fc0'}}>{card.ptsPer.label}</div>}
+      <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100%',padding:'2px'}}>
+        <div style={{fontWeight:'bold',fontSize:titleSize,marginBottom:'2px',textAlign:'center',lineHeight:1.1}}>{card.name}</div>
+        {card.prod && <div style={{fontSize:symbolSize,lineHeight:1}}>{Object.entries(card.prod).map(([k,v]) => `${v>1?v:''}${RES_ICON[k]}`).join('')}</div>}
+        <div style={{fontSize:symbolSize,lineHeight:1}}>{card.pts ? `★${card.pts}` : ''}{card.mil ? `⚔${card.mil}` : ''}{card.sci ? '🔬' : ''}</div>
+        {card.type === 'yellow' && card.coins && <div style={{fontSize:symbolSize,lineHeight:1}}>+{card.coins}💰</div>}
+        {card.type === 'purple' && <div style={{textAlign:'center'}}>
+          {card.coins && <div style={{fontSize:'0.9rem'}}>+{card.coins}💰</div>}
+          {card.ptsPer && <div style={{background:'rgba(255,255,255,0.25)',padding:'1px 3px',borderRadius:'3px',fontSize:smallText,border:'1px solid #fc0'}}>{card.ptsPer.label}</div>}
         </div>}
       </div>
     );
@@ -678,30 +678,46 @@ function App() {
 
         <div style={{background:'rgba(0,0,0,0.3)',borderRadius:'8px',padding:'12px',marginBottom:'12px',overflowX:'auto'}}>
           <div style={{textAlign:'center',marginBottom:'12px',fontWeight:'bold'}}>Age {game.age} Pyramid {game.age === 2 && '(Top → Bottom)'}</div>
-          <div style={{display:'flex',flexDirection:'column',gap:'8px',alignItems:'center',padding:'0 10px'}}>
-            {[0,1,2,3,4].map(rn => {
-              const row = game.pyr.filter(p => p.r === rn).sort((a,b) => a.c - b.c);
-              if (row.length === 0) return null;
+          <div style={{position:'relative',margin:'0 auto',width:'380px',height:'320px'}}>
+            {game.pyr.map((pos, idx) => {
+              const cardW = 70, cardH = 90;
+              const overlapX = 35, overlapY = 50;
+              
+              // Calculate position based on row and column
+              const rowCards = game.pyr.filter(p => p.r === pos.r);
+              const minC = Math.min(...rowCards.map(p => p.c));
+              const maxC = Math.max(...rowCards.map(p => p.c));
+              const rowWidth = (maxC - minC) * overlapX + cardW;
+              const totalWidth = 380;
+              const offsetX = (totalWidth - rowWidth) / 2;
+              const x = offsetX + (pos.c - minC) * overlapX;
+              const y = pos.r * overlapY;
+              
+              const acc = isAcc(pos);
+              const card = pos.card;
+              const cc = calcCost(card.cost, curProd, oppProd);
+              const canClick = acc && !game.winner && !isAITurn && !pos.taken && pos.up;
+              
+              if (pos.taken) {
+                return <div key={idx} style={{position:'absolute',left:x,top:y,width:cardW,height:cardH,background:'rgba(255,255,255,0.05)',borderRadius:'6px',border:'1px dashed rgba(255,255,255,0.1)',zIndex:pos.r*10+pos.c}}></div>;
+              }
+              if (!pos.up) {
+                return <div key={idx} style={{position:'absolute',left:x,top:y,width:cardW,height:cardH,background:'linear-gradient(135deg,#3a2414,#5a3a24)',border:'2px solid #666',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',zIndex:pos.r*10+pos.c}}><span style={{fontSize:'1.8rem',color:'#c9a227'}}>?</span></div>;
+              }
+              
               return (
-                <div key={rn} style={{display:'flex',gap:'8px'}}>
-                  {row.map((pos, i) => {
-                    const acc = isAcc(pos);
-                    const card = pos.card;
-                    let marginLeft = 0;
-                    if (i > 0) { const gap = pos.c - row[i-1].c - 1; if (gap > 0) marginLeft = gap * 98; }
-                    
-                    if (pos.taken) return <div key={i} style={{width:'90px',height:'115px',background:'rgba(255,255,255,0.03)',borderRadius:'6px',border:'1px dashed rgba(255,255,255,0.1)',marginLeft}}></div>;
-                    if (!pos.up) return <div key={i} style={{width:'90px',height:'115px',background:'linear-gradient(135deg,#3a2414,#5a3a24)',border:'2px solid #666',borderRadius:'6px',display:'flex',alignItems:'center',justifyContent:'center',marginLeft}}><span style={{fontSize:'2rem',color:'#c9a227'}}>?</span></div>;
-                    
-                    const cc = calcCost(card.cost, curProd, oppProd);
-                    const canClick = acc && !game.winner && !isAITurn;
-                    return (
-                      <div key={i} onClick={() => canClick && (setSel(pos), setWonderMode(null))} style={{width:'90px',height:'115px',background:COLORS[card.type],border:sel===pos?'3px solid gold':acc?'2px solid #c9a227':'2px solid #666',borderRadius:'6px',cursor:canClick?'pointer':'not-allowed',opacity:acc?1:0.6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'4px',color:'#fff',textAlign:'center',boxShadow:sel===pos?'0 0 12px gold':'none',marginLeft}}>
-                        {renderCardContent(card, false)}
-                        {acc && <div style={{fontSize:'0.55rem',color:curP.coins >= cc.coinCost ? '#8f8' : '#f88',marginTop:'2px'}}>({cc.coinCost}💰)</div>}
-                      </div>
-                    );
-                  })}
+                <div key={idx} onClick={() => canClick && (setSel(pos), setWonderMode(null))} style={{
+                  position:'absolute',left:x,top:y,width:cardW,height:cardH,
+                  background:COLORS[card.type],
+                  border:sel===pos?'3px solid gold':acc?'2px solid #c9a227':'2px solid #555',
+                  borderRadius:'6px',cursor:canClick?'pointer':'default',
+                  opacity:acc?1:0.6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',
+                  padding:'3px',color:'#fff',textAlign:'center',
+                  boxShadow:sel===pos?'0 0 12px gold':'0 2px 4px rgba(0,0,0,0.4)',
+                  zIndex:sel===pos?100:pos.r*10+pos.c
+                }}>
+                  {renderCardContent(card, false)}
+                  {acc && <div style={{fontSize:'0.6rem',color:curP.coins >= cc.coinCost ? '#8f8' : '#f88'}}>({cc.coinCost}💰)</div>}
                 </div>
               );
             })}
