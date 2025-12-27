@@ -58,12 +58,12 @@ const CARDS_AGE1 = [
 const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
 
 const PYRAMID = [
-  { r: 0, c: 0, up: true },
-  { r: 1, c: 0, up: false }, { r: 1, c: 1, up: false },
-  { r: 2, c: 0, up: true }, { r: 2, c: 1, up: true }, { r: 2, c: 2, up: true },
-  { r: 3, c: 0, up: false }, { r: 3, c: 1, up: false }, { r: 3, c: 2, up: false }, { r: 3, c: 3, up: false },
-  { r: 4, c: 0, up: true }, { r: 4, c: 1, up: true }, { r: 4, c: 2, up: true }, { r: 4, c: 3, up: true }, { r: 4, c: 4, up: true },
-  { r: 5, c: 0, up: false }, { r: 5, c: 1, up: false }, { r: 5, c: 2, up: false }, { r: 5, c: 3, up: false }, { r: 5, c: 4, up: false }, { r: 5, c: 5, up: false },
+  { r: 0, c: 0, up: false },
+  { r: 1, c: 0, up: true }, { r: 1, c: 1, up: true },
+  { r: 2, c: 0, up: false }, { r: 2, c: 1, up: false }, { r: 2, c: 2, up: false },
+  { r: 3, c: 0, up: true }, { r: 3, c: 1, up: true }, { r: 3, c: 2, up: true }, { r: 3, c: 3, up: true },
+  { r: 4, c: 0, up: false }, { r: 4, c: 1, up: false }, { r: 4, c: 2, up: false }, { r: 4, c: 3, up: false }, { r: 4, c: 4, up: false },
+  { r: 5, c: 0, up: true }, { r: 5, c: 1, up: true }, { r: 5, c: 2, up: true }, { r: 5, c: 3, up: true }, { r: 5, c: 4, up: true }, { r: 5, c: 5, up: true },
 ];
 
 function App() {
@@ -108,50 +108,90 @@ function App() {
   };
 
   const build = (pos) => {
-    const card = pos.card;
-    const p = game.turn === 1 ? game.p1 : game.p2;
-    
-    if (!canAfford(card, p)) {
-      setGame({...game, msg: 'Cannot afford!'});
-      return;
-    }
+    try {
+      const card = pos.card;
+      const p = game.turn === 1 ? game.p1 : game.p2;
+      
+      if (!canAfford(card, p)) {
+        setGame({...game, msg: 'Cannot afford!'});
+        return;
+      }
 
-    const newP = {...p};
-    newP.coins -= (card.cost?.coin || 0);
-    newP.cards.push(card);
-    if (card.mil) newP.mil += card.mil;
-    if (card.coins) newP.coins += card.coins;
-    
-    const newPyr = game.pyr.map(x => x === pos ? {...x, taken: true} : x)
-      .map(x => !x.up && isAccessible(x) ? {...x, up: true} : x);
+      const newP = {...p};
+      newP.coins -= (card.cost?.coin || 0);
+      newP.cards = [...p.cards, card];
+      if (card.mil) newP.mil += card.mil;
+      if (card.coins) newP.coins += card.coins;
+      
+      // Mark card as taken
+      const newPyr = game.pyr.map(x => x === pos ? {...x, taken: true} : x);
+      
+      // Reveal cards that are now accessible
+      const revealedPyr = newPyr.map(x => {
+        if (x.taken || x.up) return x;
+        const below = newPyr.filter(p => p.r === x.r + 1 && (p.c === x.c || p.c === x.c + 1) && !p.taken);
+        return below.length === 0 ? {...x, up: true} : x;
+      });
 
-    const nextTurn = game.turn === 1 ? 2 : 1;
-    
-    if (game.turn === 1) {
-      setGame({...game, pyr: newPyr, p1: newP, turn: nextTurn, msg: `Player ${nextTurn}'s turn`});
-    } else {
-      setGame({...game, pyr: newPyr, p2: newP, turn: nextTurn, msg: `Player ${nextTurn}'s turn`});
+      const nextTurn = game.turn === 1 ? 2 : 1;
+      
+      const newGame = {
+        ...game,
+        pyr: revealedPyr,
+        turn: nextTurn,
+        msg: `Player ${nextTurn}'s turn`
+      };
+      
+      if (game.turn === 1) {
+        newGame.p1 = newP;
+      } else {
+        newGame.p2 = newP;
+      }
+      
+      setGame(newGame);
+      setSel(null);
+    } catch (err) {
+      console.error('Build error:', err);
+      alert('Error building card: ' + err.message);
     }
-    
-    setSel(null);
   };
 
   const discard = (pos) => {
-    const p = game.turn === 1 ? game.p1 : game.p2;
-    const newP = {...p, coins: p.coins + 2};
-    
-    const newPyr = game.pyr.map(x => x === pos ? {...x, taken: true} : x)
-      .map(x => !x.up && isAccessible(x) ? {...x, up: true} : x);
+    try {
+      const p = game.turn === 1 ? game.p1 : game.p2;
+      const newP = {...p, coins: p.coins + 2};
+      
+      // Mark card as taken
+      const newPyr = game.pyr.map(x => x === pos ? {...x, taken: true} : x);
+      
+      // Reveal cards that are now accessible
+      const revealedPyr = newPyr.map(x => {
+        if (x.taken || x.up) return x;
+        const below = newPyr.filter(p => p.r === x.r + 1 && (p.c === x.c || p.c === x.c + 1) && !p.taken);
+        return below.length === 0 ? {...x, up: true} : x;
+      });
 
-    const nextTurn = game.turn === 1 ? 2 : 1;
-    
-    if (game.turn === 1) {
-      setGame({...game, pyr: newPyr, p1: newP, turn: nextTurn, msg: `Player ${nextTurn}'s turn`});
-    } else {
-      setGame({...game, pyr: newPyr, p2: newP, turn: nextTurn, msg: `Player ${nextTurn}'s turn`});
+      const nextTurn = game.turn === 1 ? 2 : 1;
+      
+      const newGame = {
+        ...game,
+        pyr: revealedPyr,
+        turn: nextTurn,
+        msg: `Player ${nextTurn}'s turn`
+      };
+      
+      if (game.turn === 1) {
+        newGame.p1 = newP;
+      } else {
+        newGame.p2 = newP;
+      }
+      
+      setGame(newGame);
+      setSel(null);
+    } catch (err) {
+      console.error('Discard error:', err);
+      alert('Error discarding card: ' + err.message);
     }
-    
-    setSel(null);
   };
 
   const getColor = (type) => {
