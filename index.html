@@ -537,8 +537,8 @@ function App() {
       y = pos.r * 32;
     }
 
-    if (pos.t) return <div style={{position:'absolute',left:x,top:y,width:W,height:H,background:'rgba(255,255,255,0.03)',borderRadius:3,zIndex:pos.r*10+pos.c}}></div>;
-    if (!pos.up) return <div style={{position:'absolute',left:x,top:y,width:W,height:H,background:'linear-gradient(135deg,#3a2414,#5a3a24)',border:'1px solid #555',borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',zIndex:pos.r*10+pos.c}}><span style={{fontSize:'1.2rem',color:'#c9a227'}}>?</span></div>;
+    if (pos.t) return <div style={{position:'absolute',left:x,top:y,width:W,height:H,background:'rgba(255,255,255,0.03)',borderRadius:3,zIndex:1}}></div>;
+    if (!pos.up) return <div style={{position:'absolute',left:x,top:y,width:W,height:H,background:'linear-gradient(135deg,#3a2414,#5a3a24)',border:'1px solid #555',borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',zIndex:1}}><span style={{fontSize:'1.2rem',color:'#c9a227'}}>?</span></div>;
 
     return (
       <div onClick={() => canClick && (setSel(pos), setWMode(null))} style={{
@@ -546,7 +546,7 @@ function App() {
         border:sel===pos?'2px solid gold':acc?'1px solid #c9a227':'1px solid #444',
         borderRadius:3,cursor:canClick?'pointer':'default',opacity:acc?1:0.5,
         display:'flex',flexDirection:'column',padding:'2px',color:'#fff',
-        boxShadow:sel===pos?'0 0 6px gold':'none',zIndex:sel===pos?100:pos.r*10+pos.c,overflow:'hidden'
+        boxShadow:sel===pos?'0 0 6px gold':'none',zIndex:sel===pos?50:pos.r+1,overflow:'hidden'
       }}>
         <div style={{fontSize:'0.45rem',fontWeight:'bold',lineHeight:1,marginBottom:1}}>{card.name}</div>
         <div style={{fontSize:'0.4rem',color:'#ffc'}}>
@@ -661,11 +661,12 @@ function App() {
     );
   };
 
-  const pyrH = game.age === 3 ? 250 : 200;
+  const pyrH = game.age === 3 ? 240 : 190;
   const pyrW = game.age === 3 ? 260 : 370;
 
   return (
-    <div style={{height:'100%',display:'flex',flexDirection:'column',color:'#f4e4c1',overflow:'hidden'}}>
+    <div style={{height:'100%',display:'flex',flexDirection:'column',color:'#f4e4c1',overflowY:'auto',overflowX:'hidden'}}>
+      {/* Header */}
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'3px 6px',background:'rgba(0,0,0,0.3)',flexShrink:0}}>
         <span style={{fontWeight:'bold',fontSize:'0.75rem'}}>{aiThink?'🤖 Thinking...':`Age ${game.age} • ${vsAI?(game.turn===1?'Your turn':'AI'):`P${game.turn}`}`}</span>
         <div style={{display:'flex',gap:6,alignItems:'center',fontSize:'0.65rem'}}>
@@ -673,14 +674,22 @@ function App() {
           <button onClick={() => setGame(null)} style={{padding:'2px 6px',background:'#8b4513',border:'1px solid #c9a227',borderRadius:3,color:'#fff',cursor:'pointer',fontSize:'0.6rem'}}>Menu</button>
         </div>
       </div>
-      {msg && <div style={{textAlign:'center',padding:2,background:'rgba(201,162,39,0.3)',fontSize:'0.65rem',flexShrink:0}}>{msg}</div>}
+      
+      {/* Last move - always visible */}
+      <div style={{textAlign:'center',padding:2,background:msg?'rgba(201,162,39,0.3)':'transparent',fontSize:'0.65rem',flexShrink:0,minHeight:'1.2em'}}>{msg || ' '}</div>
+      
+      {/* Military */}
       <Mil />
+      
+      {/* Player panels */}
       <div style={{display:'flex',gap:4,padding:'0 4px',flexShrink:0}}>
         <Panel pNum={1} />
         <Panel pNum={2} />
       </div>
-      <div style={{flex:1,display:'flex',justifyContent:'center',alignItems:'center',gap:8,padding:4,minHeight:0}}>
-        <div style={{position:'relative',width:pyrW,height:pyrH,flexShrink:0}}>
+      
+      {/* Pyramid + Actions - contained area */}
+      <div style={{flexShrink:0,display:'flex',justifyContent:'center',alignItems:'flex-start',gap:8,padding:4}}>
+        <div style={{position:'relative',width:pyrW,height:pyrH,flexShrink:0,overflow:'hidden'}}>
           {game.pyr.map((pos,i) => <PCard key={i} pos={pos} />)}
         </div>
         <Act />
