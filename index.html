@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>7 Wonders Duel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
-        html, body { margin: 0; padding: 0; font-family: 'Cinzel', serif; min-height: 100vh; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { font-family: 'Segoe UI', sans-serif; height: 100%; overflow: hidden; background: linear-gradient(135deg,#2c1810,#6b4423); }
+        #root { height: 100%; }
     </style>
 </head>
 <body>
@@ -19,12 +19,13 @@
     <script type="text/babel">
 const { useState, useEffect } = React;
 
+// Age 1: 23 cards, use 20
 const AGE1_CARDS = [
   { id: 'a1_1', name: 'Lumber Yard', type: 'brown', cost: {}, prod: { wood: 1 }},
-  { id: 'a1_2', name: 'Clay Pool', type: 'brown', cost: {}, prod: { clay: 1 }},
-  { id: 'a1_3', name: 'Quarry', type: 'brown', cost: {}, prod: { stone: 1 }},
-  { id: 'a1_4', name: 'Logging Camp', type: 'brown', cost: { coin: 1 }, prod: { wood: 1 }},
-  { id: 'a1_5', name: 'Clay Pit', type: 'brown', cost: { coin: 1 }, prod: { clay: 1 }},
+  { id: 'a1_2', name: 'Logging Camp', type: 'brown', cost: { coin: 1 }, prod: { wood: 1 }},
+  { id: 'a1_3', name: 'Clay Pool', type: 'brown', cost: {}, prod: { clay: 1 }},
+  { id: 'a1_4', name: 'Clay Pit', type: 'brown', cost: { coin: 1 }, prod: { clay: 1 }},
+  { id: 'a1_5', name: 'Quarry', type: 'brown', cost: {}, prod: { stone: 1 }},
   { id: 'a1_6', name: 'Stone Pit', type: 'brown', cost: { coin: 1 }, prod: { stone: 1 }},
   { id: 'a1_7', name: 'Glassworks', type: 'gray', cost: { coin: 1 }, prod: { glass: 1 }},
   { id: 'a1_8', name: 'Press', type: 'gray', cost: { coin: 1 }, prod: { papyrus: 1 }},
@@ -32,16 +33,20 @@ const AGE1_CARDS = [
   { id: 'a1_10', name: 'Stable', type: 'red', cost: { wood: 1 }, mil: 1 },
   { id: 'a1_11', name: 'Garrison', type: 'red', cost: { clay: 1 }, mil: 1 },
   { id: 'a1_12', name: 'Palisade', type: 'red', cost: { coin: 2 }, mil: 1 },
-  { id: 'a1_13', name: 'Baths', type: 'blue', cost: { stone: 1 }, pts: 3 },
-  { id: 'a1_14', name: 'Altar', type: 'blue', cost: {}, pts: 3 },
-  { id: 'a1_15', name: 'Theater', type: 'blue', cost: {}, pts: 3 },
-  { id: 'a1_16', name: 'Workshop', type: 'green', cost: { papyrus: 1 }, sci: 'gear', pts: 1 },
-  { id: 'a1_17', name: 'Apothecary', type: 'green', cost: { glass: 1 }, sci: 'wheel', pts: 1 },
-  { id: 'a1_18', name: 'Scriptorium', type: 'green', cost: { coin: 2 }, sci: 'tablet', pts: 1 },
-  { id: 'a1_19', name: 'Tavern', type: 'yellow', cost: {}, coins: 4 },
-  { id: 'a1_20', name: 'Stone Reserve', type: 'yellow', cost: { coin: 3 }, fixedTrade: 'stone' }
+  { id: 'a1_13', name: 'Workshop', type: 'green', cost: { papyrus: 1 }, sci: 'compass', pts: 1 },
+  { id: 'a1_14', name: 'Apothecary', type: 'green', cost: { glass: 1 }, sci: 'wheel', pts: 1 },
+  { id: 'a1_15', name: 'Scriptorium', type: 'green', cost: { coin: 2 }, sci: 'quill', pts: 0 },
+  { id: 'a1_16', name: 'Pharmacist', type: 'green', cost: { coin: 2 }, sci: 'mortar', pts: 0 },
+  { id: 'a1_17', name: 'Theater', type: 'blue', cost: {}, pts: 3 },
+  { id: 'a1_18', name: 'Altar', type: 'blue', cost: {}, pts: 3 },
+  { id: 'a1_19', name: 'Baths', type: 'blue', cost: { stone: 1 }, pts: 3 },
+  { id: 'a1_20', name: 'Stone Reserve', type: 'yellow', cost: { coin: 3 }, fixedTrade: 'stone' },
+  { id: 'a1_21', name: 'Clay Reserve', type: 'yellow', cost: { coin: 3 }, fixedTrade: 'clay' },
+  { id: 'a1_22', name: 'Wood Reserve', type: 'yellow', cost: { coin: 3 }, fixedTrade: 'wood' },
+  { id: 'a1_23', name: 'Tavern', type: 'yellow', cost: {}, coins: 4 }
 ];
 
+// Age 2: 23 cards, use 20
 const AGE2_CARDS = [
   { id: 'a2_1', name: 'Sawmill', type: 'brown', cost: { coin: 2 }, prod: { wood: 2 }},
   { id: 'a2_2', name: 'Brickyard', type: 'brown', cost: { coin: 2 }, prod: { clay: 2 }},
@@ -53,722 +58,632 @@ const AGE2_CARDS = [
   { id: 'a2_8', name: 'Barracks', type: 'red', cost: { coin: 3 }, mil: 1 },
   { id: 'a2_9', name: 'Archery Range', type: 'red', cost: { stone: 1, wood: 1, papyrus: 1 }, mil: 2 },
   { id: 'a2_10', name: 'Parade Ground', type: 'red', cost: { clay: 2, glass: 1 }, mil: 2 },
-  { id: 'a2_11', name: 'Courthouse', type: 'blue', cost: { wood: 2, glass: 1 }, pts: 5 },
-  { id: 'a2_12', name: 'Statue', type: 'blue', cost: { clay: 2 }, pts: 4 },
-  { id: 'a2_13', name: 'Temple', type: 'blue', cost: { wood: 1, papyrus: 1 }, pts: 4 },
-  { id: 'a2_14', name: 'Aqueduct', type: 'blue', cost: { stone: 3 }, pts: 5 },
-  { id: 'a2_15', name: 'Rostrum', type: 'blue', cost: { stone: 1, wood: 1 }, pts: 4 },
-  { id: 'a2_16', name: 'Library', type: 'green', cost: { stone: 1, wood: 1, glass: 1 }, sci: 'tablet', pts: 2 },
-  { id: 'a2_17', name: 'Dispensary', type: 'green', cost: { clay: 2, stone: 1 }, sci: 'wheel', pts: 2 },
-  { id: 'a2_18', name: 'Laboratory', type: 'green', cost: { wood: 1, glass: 2 }, sci: 'gear', pts: 2 },
-  { id: 'a2_19', name: 'Forum', type: 'yellow', cost: { coin: 3, clay: 1 }, prod: { glass: 1, papyrus: 1 }},
-  { id: 'a2_20', name: 'Caravansery', type: 'yellow', cost: { coin: 2, glass: 1, papyrus: 1 }, prod: { wood: 1, clay: 1, stone: 1 }}
+  { id: 'a2_11', name: 'Library', type: 'green', cost: { stone: 1, wood: 1, glass: 1 }, sci: 'quill', pts: 2 },
+  { id: 'a2_12', name: 'Dispensary', type: 'green', cost: { clay: 2, stone: 1 }, sci: 'mortar', pts: 2 },
+  { id: 'a2_13', name: 'School', type: 'green', cost: { wood: 1, papyrus: 2 }, sci: 'wheel', pts: 1 },
+  { id: 'a2_14', name: 'Laboratory', type: 'green', cost: { wood: 1, glass: 2 }, sci: 'compass', pts: 1 },
+  { id: 'a2_15', name: 'Courthouse', type: 'blue', cost: { wood: 2, glass: 1 }, pts: 5 },
+  { id: 'a2_16', name: 'Statue', type: 'blue', cost: { clay: 2 }, pts: 4 },
+  { id: 'a2_17', name: 'Temple', type: 'blue', cost: { wood: 1, papyrus: 1 }, pts: 4 },
+  { id: 'a2_18', name: 'Aqueduct', type: 'blue', cost: { stone: 3 }, pts: 5 },
+  { id: 'a2_19', name: 'Rostrum', type: 'blue', cost: { stone: 1, wood: 1 }, pts: 4 },
+  { id: 'a2_20', name: 'Forum', type: 'yellow', cost: { coin: 3, clay: 1 }, prodChoice: ['glass', 'papyrus'] },
+  { id: 'a2_21', name: 'Caravansery', type: 'yellow', cost: { coin: 2, glass: 1, papyrus: 1 }, prodChoice: ['wood', 'clay', 'stone'] },
+  { id: 'a2_22', name: 'Customs House', type: 'yellow', cost: { coin: 4 }, fixedTrade: 'glass,papyrus' },
+  { id: 'a2_23', name: 'Brewery', type: 'yellow', cost: {}, coins: 6 }
 ];
 
+// Age 3: 20 regular cards, use 17
 const AGE3_CARDS = [
   { id: 'a3_1', name: 'Arsenal', type: 'red', cost: { clay: 3, wood: 2 }, mil: 3 },
   { id: 'a3_2', name: 'Pretorium', type: 'red', cost: { coin: 8 }, mil: 3 },
   { id: 'a3_3', name: 'Fortifications', type: 'red', cost: { stone: 2, clay: 1, papyrus: 1 }, mil: 2 },
   { id: 'a3_4', name: 'Siege Workshop', type: 'red', cost: { wood: 3, glass: 1 }, mil: 2 },
   { id: 'a3_5', name: 'Circus', type: 'red', cost: { clay: 2, stone: 2 }, mil: 2 },
-  { id: 'a3_6', name: 'Palace', type: 'blue', cost: { clay: 1, stone: 1, wood: 1, glass: 2 }, pts: 7 },
-  { id: 'a3_7', name: 'Town Hall', type: 'blue', cost: { stone: 3, wood: 2 }, pts: 7 },
-  { id: 'a3_8', name: 'Obelisk', type: 'blue', cost: { stone: 2, glass: 1 }, pts: 5 },
-  { id: 'a3_9', name: 'Gardens', type: 'blue', cost: { clay: 2, wood: 2 }, pts: 6 },
-  { id: 'a3_10', name: 'Pantheon', type: 'blue', cost: { clay: 1, wood: 1, papyrus: 2 }, pts: 6 },
-  { id: 'a3_11', name: 'Senate', type: 'blue', cost: { clay: 2, stone: 1, papyrus: 1 }, pts: 5 },
-  { id: 'a3_12', name: 'Academy', type: 'green', cost: { stone: 1, wood: 1, glass: 2 }, sci: 'sundial', pts: 3 },
-  { id: 'a3_13', name: 'Study', type: 'green', cost: { wood: 2, glass: 1, papyrus: 1 }, sci: 'sundial', pts: 3 },
-  { id: 'a3_14', name: 'University', type: 'green', cost: { clay: 1, glass: 1, papyrus: 1 }, sci: 'globe', pts: 2 },
-  { id: 'a3_15', name: 'Observatory', type: 'green', cost: { stone: 1, papyrus: 2 }, sci: 'globe', pts: 2 },
-  { id: 'a3_16', name: 'Armory', type: 'purple', cost: { stone: 2, glass: 1 }, coins: 1, ptsPer: { type: 'red', value: 1, label: '1★/red' }},
-  { id: 'a3_17', name: 'Lighthouse', type: 'purple', cost: { clay: 2, glass: 1 }, coins: 1, ptsPer: { type: 'yellow', value: 1, label: '1★/yellow' }},
-  { id: 'a3_18', name: 'Arena', type: 'purple', cost: { clay: 1, stone: 1, wood: 1 }, coins: 2, ptsPer: { type: 'wonder', value: 2, label: '2★/wonder' }},
-  { id: 'a3_19', name: 'Chamber of Commerce', type: 'purple', cost: { papyrus: 2 }, coins: 3, ptsPer: { type: 'gray', value: 3, label: '3★/gray' }},
-  { id: 'a3_20', name: 'Port', type: 'purple', cost: { wood: 1, glass: 1, papyrus: 1 }, coins: 2, ptsPer: { type: 'brown', value: 2, label: '2★/brown' }}
+  { id: 'a3_6', name: 'Academy', type: 'green', cost: { stone: 1, wood: 1, glass: 2 }, sci: 'sundial', pts: 3 },
+  { id: 'a3_7', name: 'Study', type: 'green', cost: { wood: 2, glass: 1, papyrus: 1 }, sci: 'sundial', pts: 3 },
+  { id: 'a3_8', name: 'University', type: 'green', cost: { clay: 1, glass: 1, papyrus: 1 }, sci: 'astrolabe', pts: 2 },
+  { id: 'a3_9', name: 'Observatory', type: 'green', cost: { stone: 1, papyrus: 2 }, sci: 'astrolabe', pts: 2 },
+  { id: 'a3_10', name: 'Palace', type: 'blue', cost: { clay: 1, stone: 1, wood: 1, glass: 2 }, pts: 7 },
+  { id: 'a3_11', name: 'Town Hall', type: 'blue', cost: { stone: 3, wood: 2 }, pts: 7 },
+  { id: 'a3_12', name: 'Obelisk', type: 'blue', cost: { stone: 2, glass: 1 }, pts: 5 },
+  { id: 'a3_13', name: 'Gardens', type: 'blue', cost: { clay: 2, wood: 2 }, pts: 6 },
+  { id: 'a3_14', name: 'Pantheon', type: 'blue', cost: { clay: 1, wood: 1, papyrus: 2 }, pts: 6 },
+  { id: 'a3_15', name: 'Senate', type: 'blue', cost: { clay: 2, stone: 1, papyrus: 1 }, pts: 5 },
+  { id: 'a3_16', name: 'Chamber of Commerce', type: 'yellow', cost: { papyrus: 2 }, coins: 3, ptsPer: { type: 'gray', value: 3 }},
+  { id: 'a3_17', name: 'Port', type: 'yellow', cost: { wood: 1, glass: 1, papyrus: 1 }, coins: 2, ptsPer: { type: 'brown', value: 2 }},
+  { id: 'a3_18', name: 'Armory', type: 'yellow', cost: { stone: 2, glass: 1 }, coins: 1, ptsPer: { type: 'red', value: 1 }},
+  { id: 'a3_19', name: 'Lighthouse', type: 'yellow', cost: { clay: 2, glass: 1 }, coins: 1, ptsPer: { type: 'yellow', value: 1 }},
+  { id: 'a3_20', name: 'Arena', type: 'yellow', cost: { clay: 1, stone: 1, wood: 1 }, coins: 2, ptsPer: { type: 'wonder', value: 2 }}
 ];
 
+// 7 Guild cards, use 3
+const GUILD_CARDS = [
+  { id: 'g1', name: 'Merchants Guild', type: 'purple', cost: { clay: 1, wood: 1, glass: 1, papyrus: 1 }, ptsPer: { type: 'yellow', value: 1, both: true }},
+  { id: 'g2', name: 'Shipowners Guild', type: 'purple', cost: { clay: 1, stone: 1, glass: 1, papyrus: 1 }, ptsPer: { types: ['brown', 'gray'], value: 1 }},
+  { id: 'g3', name: 'Builders Guild', type: 'purple', cost: { stone: 2, clay: 1, wood: 1, glass: 1 }, ptsPer: { type: 'wonder', value: 2, both: true }},
+  { id: 'g4', name: 'Magistrates Guild', type: 'purple', cost: { wood: 2, clay: 1, papyrus: 1 }, ptsPer: { type: 'blue', value: 1, both: true }},
+  { id: 'g5', name: 'Scientists Guild', type: 'purple', cost: { clay: 2, wood: 2 }, ptsPer: { type: 'green', value: 1, both: true }},
+  { id: 'g6', name: 'Moneylenders Guild', type: 'purple', cost: { stone: 2, wood: 2 }, ptsPer: { type: 'coin', value: 1 }},
+  { id: 'g7', name: 'Tacticians Guild', type: 'purple', cost: { stone: 2, clay: 1, papyrus: 1 }, ptsPer: { type: 'red', value: 1, both: true }}
+];
+
+// 12 Wonders
 const WONDERS = [
   { id: 'w1', name: 'The Pyramids', cost: { stone: 3 }, pts: 9 },
-  { id: 'w2', name: 'Great Lighthouse', cost: { wood: 1, stone: 1, papyrus: 1 }, pts: 4, prod: { wood: 1, clay: 1, stone: 1 }},
-  { id: 'w3', name: 'Temple of Artemis', cost: { wood: 1, stone: 1, glass: 1, papyrus: 1 }, pts: 0, coins: 12, extraTurn: true },
-  { id: 'w4', name: 'Statue of Zeus', cost: { clay: 1, wood: 1, stone: 1, papyrus: 2 }, pts: 3, mil: 1 },
-  { id: 'w5', name: 'The Mausoleum', cost: { clay: 2, glass: 2, papyrus: 1 }, pts: 2 },
-  { id: 'w6', name: 'The Colossus', cost: { clay: 3, glass: 1 }, pts: 3, mil: 2 },
-  { id: 'w7', name: 'Great Library', cost: { wood: 3, glass: 1, papyrus: 1 }, pts: 4 },
-  { id: 'w8', name: 'Circus Maximus', cost: { stone: 2, wood: 1, glass: 1 }, pts: 3, mil: 1 },
-  { id: 'w9', name: 'Piraeus', cost: { wood: 2, stone: 1, clay: 1 }, pts: 2, extraTurn: true },
-  { id: 'w10', name: 'The Appian Way', cost: { clay: 2, stone: 2, papyrus: 1 }, pts: 3, coins: 3, opponentLoses: 3, extraTurn: true },
-  { id: 'w11', name: 'The Sphinx', cost: { stone: 1, clay: 1, glass: 2 }, pts: 6, extraTurn: true },
-  { id: 'w12', name: 'Hanging Gardens', cost: { wood: 2, glass: 1, papyrus: 1 }, pts: 3, coins: 6, extraTurn: true }
+  { id: 'w2', name: 'Great Lighthouse', cost: { wood: 1, stone: 1, papyrus: 1 }, pts: 4, prodChoice: ['wood', 'stone', 'clay'] },
+  { id: 'w3', name: 'Temple of Artemis', cost: { wood: 1, stone: 1, glass: 1, papyrus: 1 }, coins: 12, extraTurn: true },
+  { id: 'w4', name: 'Statue of Zeus', cost: { papyrus: 2, clay: 1, wood: 1, stone: 1 }, pts: 3, mil: 1 },
+  { id: 'w5', name: 'The Mausoleum', cost: { papyrus: 1, glass: 2, clay: 2 }, pts: 2 },
+  { id: 'w6', name: 'The Colossus', cost: { glass: 1, clay: 3 }, pts: 3, mil: 2 },
+  { id: 'w7', name: 'Great Library', cost: { papyrus: 1, glass: 1, wood: 3 }, pts: 4 },
+  { id: 'w8', name: 'Circus Maximus', cost: { glass: 1, wood: 1, stone: 2 }, pts: 3, mil: 1 },
+  { id: 'w9', name: 'Piraeus', cost: { clay: 1, stone: 1, wood: 2 }, pts: 2, prodChoice: ['glass', 'papyrus'], extraTurn: true },
+  { id: 'w10', name: 'The Appian Way', cost: { papyrus: 1, clay: 2, stone: 2 }, pts: 3, coins: 3, opponentLoses: 3, extraTurn: true },
+  { id: 'w11', name: 'The Sphinx', cost: { glass: 2, clay: 1, stone: 1 }, pts: 6, extraTurn: true },
+  { id: 'w12', name: 'Hanging Gardens', cost: { papyrus: 1, glass: 1, wood: 2 }, pts: 3, coins: 6, extraTurn: true }
 ];
 
-const COLORS = { brown: '#8b4513', gray: '#708090', red: '#b22222', green: '#228b22', blue: '#1e90ff', yellow: '#b8860b', purple: '#7b2d8e' };
-const RES_ICON = { wood: '🪵', clay: '🧱', stone: '🪨', glass: '🔮', papyrus: '📜', coin: '💰' };
+const COLORS = { brown: '#8B4513', gray: '#708090', red: '#C41E3A', green: '#228B22', blue: '#4169E1', yellow: '#DAA520', purple: '#8B008B' };
+const RES = { wood: '🪵', clay: '🧱', stone: '🪨', glass: '🔮', papyrus: '📜', coin: '💰' };
+const SCI = { compass: '🧭', wheel: '⚙️', quill: '✒️', mortar: '⚗️', sundial: '☀️', astrolabe: '🔭' };
 
-function buildAge1Pyramid(cards) {
-  const shuffled = [...cards].sort(() => Math.random() - 0.5);
+// Build pyramids
+const buildAge1 = (cards) => {
+  const s = [...cards].sort(() => Math.random() - 0.5).slice(0, 20);
   return [
-    { r: 0, c: 0, card: shuffled[0], up: true, taken: false },
-    { r: 0, c: 1, card: shuffled[1], up: true, taken: false },
-    { r: 1, c: 0, card: shuffled[2], up: false, taken: false },
-    { r: 1, c: 1, card: shuffled[3], up: false, taken: false },
-    { r: 1, c: 2, card: shuffled[4], up: false, taken: false },
-    { r: 2, c: 0, card: shuffled[5], up: true, taken: false },
-    { r: 2, c: 1, card: shuffled[6], up: true, taken: false },
-    { r: 2, c: 2, card: shuffled[7], up: true, taken: false },
-    { r: 2, c: 3, card: shuffled[8], up: true, taken: false },
-    { r: 3, c: 0, card: shuffled[9], up: false, taken: false },
-    { r: 3, c: 1, card: shuffled[10], up: false, taken: false },
-    { r: 3, c: 2, card: shuffled[11], up: false, taken: false },
-    { r: 3, c: 3, card: shuffled[12], up: false, taken: false },
-    { r: 3, c: 4, card: shuffled[13], up: false, taken: false },
-    { r: 4, c: 0, card: shuffled[14], up: true, taken: false },
-    { r: 4, c: 1, card: shuffled[15], up: true, taken: false },
-    { r: 4, c: 2, card: shuffled[16], up: true, taken: false },
-    { r: 4, c: 3, card: shuffled[17], up: true, taken: false },
-    { r: 4, c: 4, card: shuffled[18], up: true, taken: false },
-    { r: 4, c: 5, card: shuffled[19], up: true, taken: false }
+    {r:0,c:0,card:s[0],up:true,t:false},{r:0,c:1,card:s[1],up:true,t:false},
+    {r:1,c:0,card:s[2],up:false,t:false},{r:1,c:1,card:s[3],up:false,t:false},{r:1,c:2,card:s[4],up:false,t:false},
+    {r:2,c:0,card:s[5],up:true,t:false},{r:2,c:1,card:s[6],up:true,t:false},{r:2,c:2,card:s[7],up:true,t:false},{r:2,c:3,card:s[8],up:true,t:false},
+    {r:3,c:0,card:s[9],up:false,t:false},{r:3,c:1,card:s[10],up:false,t:false},{r:3,c:2,card:s[11],up:false,t:false},{r:3,c:3,card:s[12],up:false,t:false},{r:3,c:4,card:s[13],up:false,t:false},
+    {r:4,c:0,card:s[14],up:true,t:false},{r:4,c:1,card:s[15],up:true,t:false},{r:4,c:2,card:s[16],up:true,t:false},{r:4,c:3,card:s[17],up:true,t:false},{r:4,c:4,card:s[18],up:true,t:false},{r:4,c:5,card:s[19],up:true,t:false}
   ];
-}
+};
 
-// Age 2: Inverted - 2 cards at top (row 0) accessible first, 6 cards at bottom
-function buildAge2Pyramid(cards) {
-  const shuffled = [...cards].sort(() => Math.random() - 0.5);
+const buildAge2 = (cards) => {
+  const s = [...cards].sort(() => Math.random() - 0.5).slice(0, 20);
   return [
-    { r: 0, c: 0, card: shuffled[0], up: true, taken: false },
-    { r: 0, c: 1, card: shuffled[1], up: true, taken: false },
-    { r: 1, c: 0, card: shuffled[2], up: false, taken: false },
-    { r: 1, c: 1, card: shuffled[3], up: false, taken: false },
-    { r: 1, c: 2, card: shuffled[4], up: false, taken: false },
-    { r: 2, c: 0, card: shuffled[5], up: true, taken: false },
-    { r: 2, c: 1, card: shuffled[6], up: true, taken: false },
-    { r: 2, c: 2, card: shuffled[7], up: true, taken: false },
-    { r: 2, c: 3, card: shuffled[8], up: true, taken: false },
-    { r: 3, c: 0, card: shuffled[9], up: false, taken: false },
-    { r: 3, c: 1, card: shuffled[10], up: false, taken: false },
-    { r: 3, c: 2, card: shuffled[11], up: false, taken: false },
-    { r: 3, c: 3, card: shuffled[12], up: false, taken: false },
-    { r: 3, c: 4, card: shuffled[13], up: false, taken: false },
-    { r: 4, c: 0, card: shuffled[14], up: true, taken: false },
-    { r: 4, c: 1, card: shuffled[15], up: true, taken: false },
-    { r: 4, c: 2, card: shuffled[16], up: true, taken: false },
-    { r: 4, c: 3, card: shuffled[17], up: true, taken: false },
-    { r: 4, c: 4, card: shuffled[18], up: true, taken: false },
-    { r: 4, c: 5, card: shuffled[19], up: true, taken: false }
+    {r:0,c:0,card:s[0],up:true,t:false},{r:0,c:1,card:s[1],up:true,t:false},
+    {r:1,c:0,card:s[2],up:false,t:false},{r:1,c:1,card:s[3],up:false,t:false},{r:1,c:2,card:s[4],up:false,t:false},
+    {r:2,c:0,card:s[5],up:true,t:false},{r:2,c:1,card:s[6],up:true,t:false},{r:2,c:2,card:s[7],up:true,t:false},{r:2,c:3,card:s[8],up:true,t:false},
+    {r:3,c:0,card:s[9],up:false,t:false},{r:3,c:1,card:s[10],up:false,t:false},{r:3,c:2,card:s[11],up:false,t:false},{r:3,c:3,card:s[12],up:false,t:false},{r:3,c:4,card:s[13],up:false,t:false},
+    {r:4,c:0,card:s[14],up:true,t:false},{r:4,c:1,card:s[15],up:true,t:false},{r:4,c:2,card:s[16],up:true,t:false},{r:4,c:3,card:s[17],up:true,t:false},{r:4,c:4,card:s[18],up:true,t:false},{r:4,c:5,card:s[19],up:true,t:false}
   ];
-}
+};
 
-function buildAge3Pyramid(cards) {
-  const shuffled = [...cards].sort(() => Math.random() - 0.5);
+// Age 3: hourglass 2-4-6-2-6-4-2 but cards overlap
+const buildAge3 = (reg, guilds) => {
+  const r = [...reg].sort(() => Math.random() - 0.5).slice(0, 17);
+  const g = [...guilds].sort(() => Math.random() - 0.5).slice(0, 3);
+  const s = [...r, ...g].sort(() => Math.random() - 0.5);
+  // Row structure: 2(gap), 4, 6, 2(middle gap), 6, 4, 2(gap) - but we only have 20 cards
+  // Actual: row0=2, row1=4, row2=6, row3=2, row4=6, row5=4, row6=2 would be 26
+  // Real game: 2-3-4-2-4-3-2 = 20
   return [
-    { r: 0, c: 0, card: shuffled[0], up: true, taken: false },
-    { r: 0, c: 5, card: shuffled[1], up: true, taken: false },
-    { r: 1, c: 0, card: shuffled[2], up: false, taken: false },
-    { r: 1, c: 1, card: shuffled[3], up: false, taken: false },
-    { r: 1, c: 4, card: shuffled[4], up: false, taken: false },
-    { r: 1, c: 5, card: shuffled[5], up: false, taken: false },
-    { r: 2, c: 0, card: shuffled[6], up: true, taken: false },
-    { r: 2, c: 1, card: shuffled[7], up: true, taken: false },
-    { r: 2, c: 2, card: shuffled[8], up: true, taken: false },
-    { r: 2, c: 3, card: shuffled[9], up: true, taken: false },
-    { r: 2, c: 4, card: shuffled[10], up: true, taken: false },
-    { r: 2, c: 5, card: shuffled[11], up: true, taken: false },
-    { r: 3, c: 0, card: shuffled[12], up: false, taken: false },
-    { r: 3, c: 1, card: shuffled[13], up: false, taken: false },
-    { r: 3, c: 2, card: shuffled[14], up: false, taken: false },
-    { r: 3, c: 3, card: shuffled[15], up: false, taken: false },
-    { r: 3, c: 4, card: shuffled[16], up: false, taken: false },
-    { r: 4, c: 0, card: shuffled[17], up: true, taken: false },
-    { r: 4, c: 2, card: shuffled[18], up: true, taken: false },
-    { r: 4, c: 4, card: shuffled[19], up: true, taken: false }
+    {r:0,c:0,card:s[0],up:true,t:false},{r:0,c:3,card:s[1],up:true,t:false},
+    {r:1,c:0,card:s[2],up:false,t:false},{r:1,c:1,card:s[3],up:false,t:false},{r:1,c:2,card:s[4],up:false,t:false},
+    {r:2,c:0,card:s[5],up:true,t:false},{r:2,c:1,card:s[6],up:true,t:false},{r:2,c:2,card:s[7],up:true,t:false},{r:2,c:3,card:s[8],up:true,t:false},
+    {r:3,c:1,card:s[9],up:false,t:false},{r:3,c:2,card:s[10],up:false,t:false},
+    {r:4,c:0,card:s[11],up:true,t:false},{r:4,c:1,card:s[12],up:true,t:false},{r:4,c:2,card:s[13],up:true,t:false},{r:4,c:3,card:s[14],up:true,t:false},
+    {r:5,c:0,card:s[15],up:false,t:false},{r:5,c:1,card:s[16],up:false,t:false},{r:5,c:2,card:s[17],up:false,t:false},
+    {r:6,c:0,card:s[18],up:true,t:false},{r:6,c:3,card:s[19],up:true,t:false}
   ];
-}
+};
 
 function App() {
   const [game, setGame] = useState(null);
   const [sel, setSel] = useState(null);
-  const [p1Expanded, setP1Expanded] = useState(false);
-  const [p2Expanded, setP2Expanded] = useState(false);
-  const [p1WondersExp, setP1WondersExp] = useState(true);
-  const [p2WondersExp, setP2WondersExp] = useState(true);
-  const [message, setMessage] = useState(null);
-  const [wonderMode, setWonderMode] = useState(null);
+  const [msg, setMsg] = useState(null);
+  const [wMode, setWMode] = useState(null);
   const [vsAI, setVsAI] = useState(false);
-  const [aiThinking, setAiThinking] = useState(false);
+  const [aiThink, setAiThink] = useState(false);
+  const [showP1, setShowP1] = useState(false);
+  const [showP2, setShowP2] = useState(false);
 
-  const startGame = (playVsAI) => {
-    const shuffledW = [...WONDERS].sort(() => Math.random() - 0.5);
-    const p1W = shuffledW.slice(0, 4).map(w => ({ ...w, built: false }));
-    const p2W = shuffledW.slice(4, 8).map(w => ({ ...w, built: false }));
-    setVsAI(playVsAI);
+  const start = (ai) => {
+    const sw = [...WONDERS].sort(() => Math.random() - 0.5);
+    setVsAI(ai);
     setGame({
-      age: 1, pyr: buildAge1Pyramid(AGE1_CARDS),
-      p1: { coins: 7, cards: [], wonders: p1W },
-      p2: { coins: 7, cards: [], wonders: p2W },
-      turn: 1, military: 0, discardPile: [], totalWondersBuilt: 0, winner: null
+      age: 1, pyr: buildAge1(AGE1_CARDS),
+      p1: { coins: 7, cards: [], wonders: sw.slice(0,4).map(w => ({...w, built: false})) },
+      p2: { coins: 7, cards: [], wonders: sw.slice(4,8).map(w => ({...w, built: false})) },
+      turn: 1, mil: 0, disc: [], wBuilt: 0, winner: null, reason: null
     });
-    setSel(null); setMessage(null); setWonderMode(null); setAiThinking(false);
+    setSel(null); setMsg(null); setWMode(null);
   };
 
-  const startNextAge = () => {
-    if (!game) return;
-    const nextAge = game.age + 1;
-    let newPyr = nextAge === 2 ? buildAge2Pyramid(AGE2_CARDS) : buildAge3Pyramid(AGE3_CARDS);
-    const firstPlayer = game.military < 0 ? 1 : game.military > 0 ? 2 : game.turn;
-    setGame({ ...game, age: nextAge, pyr: newPyr, turn: firstPlayer });
-    setSel(null); setMessage(`Age ${nextAge} begins! Player ${firstPlayer} starts.`); setWonderMode(null);
+  const nextAge = () => {
+    const next = game.age + 1;
+    const pyr = next === 2 ? buildAge2(AGE2_CARDS) : buildAge3(AGE3_CARDS, GUILD_CARDS);
+    const first = game.mil < 0 ? 1 : game.mil > 0 ? 2 : game.turn;
+    setGame({...game, age: next, pyr, turn: first});
+    setSel(null); setMsg(null); setWMode(null);
   };
 
   const getProd = (cards, wonders) => {
-    const prod = {};
-    cards?.forEach(c => c?.prod && Object.entries(c.prod).forEach(([k, v]) => prod[k] = (prod[k] || 0) + v));
-    wonders?.forEach(w => w?.built && w?.prod && Object.entries(w.prod).forEach(([k, v]) => prod[k] = (prod[k] || 0) + v));
-    return prod;
+    const p = {};
+    cards?.forEach(c => c?.prod && Object.entries(c.prod).forEach(([k,v]) => p[k] = (p[k]||0) + v));
+    wonders?.forEach(w => w?.built && w?.prod && Object.entries(w.prod).forEach(([k,v]) => p[k] = (p[k]||0) + v));
+    return p;
   };
 
-  const getProdDisplay = (prod) => {
-    const keys = Object.keys(prod);
-    return keys.length === 0 ? 'None' : keys.map(k => `${prod[k]}${RES_ICON[k] || k}`).join(' ');
-  };
-
-  const calcCost = (cost, myProd, oppProd) => {
-    if (!cost || Object.keys(cost).length === 0) return { coinCost: 0, details: 'Free' };
-    let total = cost.coin || 0;
-    const details = [];
-    if (cost.coin) details.push(`${cost.coin}💰`);
-    ['wood', 'clay', 'stone', 'glass', 'papyrus'].forEach(res => {
-      const need = cost[res] || 0;
+  const calcCost = (cost, myP, oppP) => {
+    if (!cost || !Object.keys(cost).length) return { c: 0, res: {} };
+    let t = cost.coin || 0;
+    const res = {};
+    ['wood','clay','stone','glass','papyrus'].forEach(r => {
+      const need = cost[r] || 0;
       if (need > 0) {
-        const have = myProd[res] || 0;
-        const toBuy = Math.max(0, need - have);
-        if (toBuy > 0) {
-          const oppHas = oppProd[res] || 0;
-          const trade = toBuy * (2 + oppHas);
-          total += trade;
-          details.push(`${toBuy}${RES_ICON[res]}=${trade}💰`);
-        }
+        res[r] = need;
+        const buy = Math.max(0, need - (myP[r]||0));
+        if (buy > 0) t += buy * (2 + (oppP[r]||0));
       }
     });
-    return { coinCost: total, details: details.length > 0 ? details.join('+') : 'Free' };
+    return { c: t, res };
   };
 
-  const applyMil = (curMil, shields, curPlayer) => {
-    const dir = curPlayer === 1 ? 1 : -1;
-    let newMil = curMil + (shields * dir);
-    let lost = 0, victory = false, victor = null;
-    if (curPlayer === 1) {
-      if (curMil < 3 && newMil >= 3) lost += 2;
-      if (curMil < 6 && newMil >= 6) lost += 5;
-      if (newMil >= 9) { newMil = 9; victory = true; victor = 1; }
+  const applyMil = (cur, shields, player) => {
+    const dir = player === 1 ? 1 : -1;
+    let m = cur + shields * dir, lost = 0, win = false, victor = null;
+    if (player === 1) {
+      if (cur < 3 && m >= 3) lost = 2;
+      if (cur < 6 && m >= 6) lost = 5;
+      if (m >= 9) { m = 9; win = true; victor = 1; }
     } else {
-      if (curMil > -3 && newMil <= -3) lost += 2;
-      if (curMil > -6 && newMil <= -6) lost += 5;
-      if (newMil <= -9) { newMil = -9; victory = true; victor = 2; }
+      if (cur > -3 && m <= -3) lost = 2;
+      if (cur > -6 && m <= -6) lost = 5;
+      if (m <= -9) { m = -9; win = true; victor = 2; }
     }
-    return { newMil, lost, victory, victor };
+    return { m, lost, win, victor };
   };
 
-  const isAccFn = (pyr, pos, age) => {
-    if (!pos || pos.taken) return false;
-    if (age === 2) {
-      // Age 2: accessible from TOP - cards blocked by row ABOVE
-      const dominated = pyr.filter(p => p.r === pos.r - 1 && (p.c === pos.c || p.c === pos.c - 1) && !p.taken);
-      return dominated.length === 0;
-    } else {
-      // Age 1 & 3: accessible from bottom
-      const dominated = pyr.filter(p => p.r === pos.r + 1 && (p.c === pos.c || p.c === pos.c + 1) && !p.taken);
-      return dominated.length === 0;
-    }
+  const isAcc = (pyr, pos, age) => {
+    if (!pos || pos.t) return false;
+    if (age === 2) return !pyr.some(p => p.r === pos.r - 1 && (p.c === pos.c || p.c === pos.c - 1) && !p.t);
+    return !pyr.some(p => p.r === pos.r + 1 && (p.c === pos.c || p.c === pos.c + 1) && !p.t);
   };
 
-  const isAcc = (pos) => game ? isAccFn(game.pyr, pos, game.age) : false;
-
-  const revealFn = (pyr, takenPos, age) => pyr.map(p => {
-    if (p === takenPos) return { ...p, taken: true };
-    if (p.up || p.taken) return p;
+  const reveal = (pyr, taken, age) => pyr.map(p => {
+    if (p === taken) return {...p, t: true};
+    if (p.up || p.t) return p;
     if (age === 2) {
       const above = pyr.filter(b => b.r === p.r - 1 && (b.c === p.c || b.c === p.c - 1));
-      const allTaken = above.every(b => b === takenPos || b.taken);
-      return allTaken ? { ...p, up: true } : p;
+      if (above.every(b => b === taken || b.t)) return {...p, up: true};
     } else {
       const below = pyr.filter(b => b.r === p.r + 1 && (b.c === p.c || b.c === p.c + 1));
-      const allTaken = below.every(b => b === takenPos || b.taken);
-      return allTaken ? { ...p, up: true } : p;
+      if (below.every(b => b === taken || b.t)) return {...p, up: true};
     }
+    return p;
   });
 
-  const getYellowCount = (player) => player?.cards?.filter(c => c.type === 'yellow').length || 0;
+  const getYellow = (p) => p?.cards?.filter(c => c.type === 'yellow').length || 0;
 
-  const buildCard = () => {
-    if (!sel || !game || game.winner) return;
-    const player = game.turn === 1 ? game.p1 : game.p2;
-    const opp = game.turn === 1 ? game.p2 : game.p1;
-    const myProd = getProd(player.cards, player.wonders);
-    const oppProd = getProd(opp.cards, opp.wonders);
-    const cc = calcCost(sel.card.cost, myProd, oppProd);
-    if (player.coins < cc.coinCost) { setMessage(`Need ${cc.coinCost}💰, have ${player.coins}💰`); return; }
-
-    const newCoins = player.coins - cc.coinCost + (sel.card.coins || 0);
-    const newCards = [...player.cards, sel.card];
-    let milRes = { newMil: game.military, lost: 0, victory: false, victor: null };
-    if (sel.card.mil) milRes = applyMil(game.military, sel.card.mil, game.turn);
-    
-    const newOpp = { ...opp };
-    if (milRes.lost > 0) {
-      newOpp.coins = Math.max(0, opp.coins - milRes.lost);
-      setMessage(`P${game.turn === 1 ? '2' : '1'} loses ${milRes.lost}💰!`);
-    } else setMessage(null);
-
-    const newPlayer = { ...player, coins: newCoins, cards: newCards };
-    const newPyr = revealFn(game.pyr, sel, game.age);
-    setGame({
-      ...game, pyr: newPyr,
-      p1: game.turn === 1 ? newPlayer : newOpp,
-      p2: game.turn === 2 ? newPlayer : newOpp,
-      turn: game.turn === 1 ? 2 : 1,
-      military: milRes.newMil,
-      winner: milRes.victory ? milRes.victor : null
-    });
-    setSel(null);
-  };
-
-  const discardCard = () => {
-    if (!sel || !game || game.winner) return;
-    const player = game.turn === 1 ? game.p1 : game.p2;
-    const yellowCount = getYellowCount(player);
-    const discardValue = 2 + yellowCount;
-    const newPlayer = { ...player, coins: player.coins + discardValue };
-    const newPyr = revealFn(game.pyr, sel, game.age);
-    setGame({
-      ...game, pyr: newPyr,
-      p1: game.turn === 1 ? newPlayer : game.p1,
-      p2: game.turn === 2 ? newPlayer : game.p2,
-      turn: game.turn === 1 ? 2 : 1,
-      discardPile: [...game.discardPile, sel.card]
-    });
-    setSel(null);
-    setMessage(`+${discardValue}💰 (2 + ${yellowCount} yellow)`);
-  };
-
-  const selWonder = (w) => { if (sel && !w.built && game.totalWondersBuilt < 7) setWonderMode(w); };
-
-  const buildWonder = () => {
-    if (!sel || !wonderMode || !game || game.winner) return;
-    const player = game.turn === 1 ? game.p1 : game.p2;
-    const opp = game.turn === 1 ? game.p2 : game.p1;
-    const myProd = getProd(player.cards, player.wonders);
-    const oppProd = getProd(opp.cards, opp.wonders);
-    const cc = calcCost(wonderMode.cost, myProd, oppProd);
-    if (player.coins < cc.coinCost) { setMessage(`Need ${cc.coinCost}💰, have ${player.coins}💰`); return; }
-    if (game.totalWondersBuilt >= 7) { setMessage('Max 7 wonders!'); return; }
-
-    const newCoins = player.coins - cc.coinCost + (wonderMode.coins || 0);
-    const newWonders = player.wonders.map(w => w.id === wonderMode.id ? { ...w, built: true } : w);
-    let milRes = { newMil: game.military, lost: 0, victory: false, victor: null };
-    if (wonderMode.mil) milRes = applyMil(game.military, wonderMode.mil, game.turn);
-    
-    const newOpp = { ...opp };
-    if (milRes.lost > 0) newOpp.coins = Math.max(0, opp.coins - milRes.lost);
-    if (wonderMode.opponentLoses) newOpp.coins = Math.max(0, newOpp.coins - wonderMode.opponentLoses);
-
-    const newPlayer = { ...player, coins: newCoins, wonders: newWonders };
-    const newPyr = revealFn(game.pyr, sel, game.age);
-    const nextTurn = wonderMode.extraTurn ? game.turn : (game.turn === 1 ? 2 : 1);
-    setGame({
-      ...game, pyr: newPyr,
-      p1: game.turn === 1 ? newPlayer : newOpp,
-      p2: game.turn === 2 ? newPlayer : newOpp,
-      turn: nextTurn, military: milRes.newMil,
-      totalWondersBuilt: game.totalWondersBuilt + 1,
-      winner: milRes.victory ? milRes.victor : null
-    });
-    setSel(null); setWonderMode(null);
-    setMessage(`${wonderMode.name} built!${wonderMode.extraTurn ? ' Extra turn!' : ''}`);
-  };
-
-  const getPts = (player) => {
+  // Science: pair = +7pts, 6 different = victory
+  const getSci = (cards) => {
+    const syms = {};
+    cards?.filter(c => c.sci).forEach(c => syms[c.sci] = (syms[c.sci]||0) + 1);
     let pts = 0;
-    player.cards?.forEach(c => {
+    Object.values(syms).forEach(n => { if (n >= 2) pts += 7; });
+    return { pts, victory: Object.keys(syms).length >= 6 };
+  };
+
+  const getPts = (p, opp) => {
+    let pts = 0;
+    p.cards?.forEach(c => {
       pts += c.pts || 0;
       if (c.ptsPer) {
-        let count = 0;
-        if (c.ptsPer.type === 'red') count = player.cards.filter(x => x.type === 'red').length;
-        else if (c.ptsPer.type === 'yellow') count = player.cards.filter(x => x.type === 'yellow').length;
-        else if (c.ptsPer.type === 'brown') count = player.cards.filter(x => x.type === 'brown').length;
-        else if (c.ptsPer.type === 'gray') count = player.cards.filter(x => x.type === 'gray').length;
-        else if (c.ptsPer.type === 'wonder') count = player.wonders.filter(w => w.built).length;
-        pts += count * c.ptsPer.value;
+        let cnt = 0;
+        if (c.ptsPer.type === 'wonder') {
+          cnt = p.wonders.filter(w => w.built).length;
+          if (c.ptsPer.both) cnt += opp?.wonders?.filter(w => w.built).length || 0;
+        } else if (c.ptsPer.type === 'coin') {
+          cnt = Math.floor(p.coins / 3);
+        } else if (c.ptsPer.types) {
+          c.ptsPer.types.forEach(t => cnt += p.cards.filter(x => x.type === t).length);
+        } else {
+          cnt = p.cards.filter(x => x.type === c.ptsPer.type).length;
+          if (c.ptsPer.both) cnt += opp?.cards?.filter(x => x.type === c.ptsPer.type).length || 0;
+        }
+        pts += cnt * c.ptsPer.value;
       }
     });
-    player.wonders?.forEach(w => { if (w.built) pts += w.pts || 0; });
+    p.wonders?.forEach(w => { if (w.built) pts += w.pts || 0; });
+    pts += getSci(p.cards).pts;
     return pts;
   };
 
-  const getMilPts = (military) => {
-    const absMil = Math.abs(military);
-    if (absMil >= 6) return 10;
-    if (absMil >= 3) return 5;
-    if (absMil >= 1) return 2;
-    return 0;
-  };
+  const getMilPts = (m) => { const a = Math.abs(m); return a >= 6 ? 10 : a >= 3 ? 5 : a >= 1 ? 2 : 0; };
 
-  // AI Logic
-  const evaluateCard = (card, player, opp, military) => {
-    let score = 0;
-    const myProd = getProd(player.cards, player.wonders);
-    const oppProd = getProd(opp.cards, opp.wonders);
-    const cc = calcCost(card.cost, myProd, oppProd);
-    if (cc.coinCost > player.coins) return -1000;
-    score += (card.pts || 0) * 10;
-    if (card.mil) { score += card.mil * 8; if (military <= -6) score += card.mil * 15; }
-    if (card.prod) score += Object.values(card.prod).reduce((s, v) => s + v * 5, 0);
-    score += (card.coins || 0) * 2;
-    if (card.sci) score += 6;
-    if (card.ptsPer) {
-      let count = 0;
-      if (card.ptsPer.type === 'red') count = player.cards.filter(x => x.type === 'red').length;
-      else if (card.ptsPer.type === 'yellow') count = player.cards.filter(x => x.type === 'yellow').length;
-      else if (card.ptsPer.type === 'brown') count = player.cards.filter(x => x.type === 'brown').length;
-      else if (card.ptsPer.type === 'gray') count = player.cards.filter(x => x.type === 'gray').length;
-      else if (card.ptsPer.type === 'wonder') count = player.wonders.filter(w => w.built).length;
-      score += count * card.ptsPer.value * 8;
-    }
-    score -= cc.coinCost * 1.5;
-    return score;
-  };
-
-  const evaluateWonder = (wonder, player, opp, military) => {
-    let score = 0;
-    const myProd = getProd(player.cards, player.wonders);
-    const oppProd = getProd(opp.cards, opp.wonders);
-    const cc = calcCost(wonder.cost, myProd, oppProd);
-    if (cc.coinCost > player.coins) return -1000;
-    score += (wonder.pts || 0) * 10;
-    score += (wonder.coins || 0) * 2;
-    if (wonder.mil) { score += wonder.mil * 8; if (military <= -6) score += wonder.mil * 15; }
-    if (wonder.extraTurn) score += 12;
-    if (wonder.opponentLoses) score += wonder.opponentLoses * 3;
-    if (wonder.prod) score += Object.values(wonder.prod).reduce((s, v) => s + v * 4, 0);
-    score -= cc.coinCost * 1.5;
-    return score;
-  };
-
-  const aiTakeTurn = (gameState) => {
-    const player = gameState.p2, opp = gameState.p1, pyr = gameState.pyr, age = gameState.age;
-    const accessible = pyr.filter(p => !p.taken && p.up && isAccFn(pyr, p, age));
-    if (accessible.length === 0) return null;
-
-    let bestAction = null, bestScore = -Infinity;
-    accessible.forEach(pos => {
-      const score = evaluateCard(pos.card, player, opp, gameState.military);
-      if (score > bestScore) { bestScore = score; bestAction = { type: 'build', pos }; }
+  const build = () => {
+    if (!sel || !game || game.winner) return;
+    const p = game.turn === 1 ? game.p1 : game.p2;
+    const o = game.turn === 1 ? game.p2 : game.p1;
+    const cc = calcCost(sel.card.cost, getProd(p.cards, p.wonders), getProd(o.cards, o.wonders));
+    if (p.coins < cc.c) { setMsg(`Need ${cc.c}💰`); return; }
+    const newCards = [...p.cards, sel.card];
+    const newCoins = p.coins - cc.c + (sel.card.coins || 0);
+    let mil = { m: game.mil, lost: 0, win: false, victor: null };
+    if (sel.card.mil) mil = applyMil(game.mil, sel.card.mil, game.turn);
+    const newO = {...o, coins: Math.max(0, o.coins - mil.lost)};
+    const sciV = getSci(newCards).victory;
+    setGame({...game, pyr: reveal(game.pyr, sel, game.age),
+      p1: game.turn === 1 ? {...p, coins: newCoins, cards: newCards} : newO,
+      p2: game.turn === 2 ? {...p, coins: newCoins, cards: newCards} : newO,
+      turn: game.turn === 1 ? 2 : 1, mil: mil.m,
+      winner: mil.win ? mil.victor : (sciV ? game.turn : null),
+      reason: mil.win ? 'military' : (sciV ? 'science' : null)
     });
-
-    const unbuildWonders = player.wonders.filter(w => !w.built);
-    if (unbuildWonders.length > 0 && gameState.totalWondersBuilt < 7) {
-      accessible.forEach(pos => {
-        unbuildWonders.forEach(w => {
-          const wonderScore = evaluateWonder(w, player, opp, gameState.military);
-          if (wonderScore > bestScore) { bestScore = wonderScore; bestAction = { type: 'wonder', pos, wonder: w }; }
-        });
-      });
-    }
-
-    if (bestScore < 0) {
-      let worstPos = accessible[0], worstScore = Infinity;
-      accessible.forEach(pos => {
-        const cardScore = evaluateCard(pos.card, player, opp, gameState.military);
-        if (cardScore < worstScore) { worstScore = cardScore; worstPos = pos; }
-      });
-      bestAction = { type: 'discard', pos: worstPos };
-    }
-    return bestAction;
+    setSel(null); setMsg(mil.lost ? `P${game.turn===1?2:1} -${mil.lost}💰` : null);
   };
 
-  const executeAIAction = (action) => {
-    if (!action || !game) return;
-    const player = game.p2, opp = game.p1, pos = action.pos;
+  const discard = () => {
+    if (!sel || !game || game.winner) return;
+    const p = game.turn === 1 ? game.p1 : game.p2;
+    const val = 2 + getYellow(p);
+    setGame({...game, pyr: reveal(game.pyr, sel, game.age),
+      p1: game.turn === 1 ? {...p, coins: p.coins + val} : game.p1,
+      p2: game.turn === 2 ? {...p, coins: p.coins + val} : game.p2,
+      turn: game.turn === 1 ? 2 : 1, disc: [...game.disc, sel.card]
+    });
+    setSel(null); setMsg(`+${val}💰`);
+  };
 
-    if (action.type === 'build') {
-      const myProd = getProd(player.cards, player.wonders);
-      const oppProd = getProd(opp.cards, opp.wonders);
-      const cc = calcCost(pos.card.cost, myProd, oppProd);
-      const newCoins = player.coins - cc.coinCost + (pos.card.coins || 0);
-      const newCards = [...player.cards, pos.card];
-      let milRes = { newMil: game.military, lost: 0, victory: false, victor: null };
-      if (pos.card.mil) milRes = applyMil(game.military, pos.card.mil, 2);
-      const newOpp = { ...opp };
-      if (milRes.lost > 0) { newOpp.coins = Math.max(0, opp.coins - milRes.lost); setMessage(`AI built ${pos.card.name}. P1 loses ${milRes.lost}💰!`); }
-      else setMessage(`AI built ${pos.card.name}`);
-      const newPlayer = { ...player, coins: newCoins, cards: newCards };
-      const newPyr = revealFn(game.pyr, pos, game.age);
-      setGame({ ...game, pyr: newPyr, p1: newOpp, p2: newPlayer, turn: 1, military: milRes.newMil, winner: milRes.victory ? milRes.victor : null });
-    } else if (action.type === 'wonder') {
-      const w = action.wonder;
-      const myProd = getProd(player.cards, player.wonders);
-      const oppProd = getProd(opp.cards, opp.wonders);
-      const cc = calcCost(w.cost, myProd, oppProd);
-      const newCoins = player.coins - cc.coinCost + (w.coins || 0);
-      const newWonders = player.wonders.map(ww => ww.id === w.id ? { ...ww, built: true } : ww);
-      let milRes = { newMil: game.military, lost: 0, victory: false, victor: null };
-      if (w.mil) milRes = applyMil(game.military, w.mil, 2);
-      const newOpp = { ...opp };
-      if (milRes.lost > 0) newOpp.coins = Math.max(0, opp.coins - milRes.lost);
-      if (w.opponentLoses) newOpp.coins = Math.max(0, newOpp.coins - w.opponentLoses);
-      const newPlayer = { ...player, coins: newCoins, wonders: newWonders };
-      const newPyr = revealFn(game.pyr, pos, game.age);
-      const nextTurn = w.extraTurn ? 2 : 1;
-      setMessage(`AI built ${w.name}${w.extraTurn ? ' - Extra turn!' : ''}`);
-      setGame({ ...game, pyr: newPyr, p1: newOpp, p2: newPlayer, turn: nextTurn, military: milRes.newMil, totalWondersBuilt: game.totalWondersBuilt + 1, winner: milRes.victory ? milRes.victor : null });
-    } else if (action.type === 'discard') {
-      const yellowCount = getYellowCount(player);
-      const discardValue = 2 + yellowCount;
-      const newPlayer = { ...player, coins: player.coins + discardValue };
-      const newPyr = revealFn(game.pyr, pos, game.age);
-      setMessage(`AI discarded ${pos.card.name} (+${discardValue}💰)`);
-      setGame({ ...game, pyr: newPyr, p2: newPlayer, turn: 1, discardPile: [...game.discardPile, pos.card] });
+  const buildW = () => {
+    if (!sel || !wMode || !game || game.winner) return;
+    const p = game.turn === 1 ? game.p1 : game.p2;
+    const o = game.turn === 1 ? game.p2 : game.p1;
+    const cc = calcCost(wMode.cost, getProd(p.cards, p.wonders), getProd(o.cards, o.wonders));
+    if (p.coins < cc.c) { setMsg(`Need ${cc.c}💰`); return; }
+    const newWB = game.wBuilt + 1;
+    const is7th = newWB >= 7;
+    const newCoins = p.coins - cc.c + (wMode.coins || 0);
+    const newW = p.wonders.map(w => w.id === wMode.id ? {...w, built: true} : w);
+    let mil = { m: game.mil, lost: 0, win: false, victor: null };
+    if (wMode.mil) mil = applyMil(game.mil, wMode.mil, game.turn);
+    const newO = {...o, coins: Math.max(0, o.coins - mil.lost - (wMode.opponentLoses||0))};
+    const next = wMode.extraTurn && !is7th ? game.turn : (game.turn === 1 ? 2 : 1);
+    
+    let winner = null, reason = null;
+    if (mil.win) { winner = mil.victor; reason = 'military'; }
+    else if (is7th) { reason = 'wonder'; }
+    
+    const ng = {...game, pyr: reveal(game.pyr, sel, game.age),
+      p1: game.turn === 1 ? {...p, coins: newCoins, wonders: newW} : newO,
+      p2: game.turn === 2 ? {...p, coins: newCoins, wonders: newW} : newO,
+      turn: next, mil: mil.m, wBuilt: newWB, winner, reason
+    };
+    
+    if (reason === 'wonder') {
+      const p1T = getPts(ng.p1, ng.p2) + (ng.mil > 0 ? getMilPts(ng.mil) : 0) + Math.floor(ng.p1.coins / 3);
+      const p2T = getPts(ng.p2, ng.p1) + (ng.mil < 0 ? getMilPts(ng.mil) : 0) + Math.floor(ng.p2.coins / 3);
+      ng.winner = p1T >= p2T ? 1 : 2;
+    }
+    
+    setGame(ng);
+    setSel(null); setWMode(null);
+    setMsg(`${wMode.name}!${wMode.extraTurn && !is7th ? ' Again!' : ''}`);
+  };
+
+  // AI
+  const evalCard = (card, p, o, mil) => {
+    const cc = calcCost(card.cost, getProd(p.cards, p.wonders), getProd(o.cards, o.wonders));
+    if (cc.c > p.coins) return -1000;
+    let s = (card.pts||0) * 10 + (card.mil||0) * 8 + (card.coins||0) * 2;
+    if (card.prod) s += Object.values(card.prod).reduce((a,v) => a + v * 5, 0);
+    if (card.sci) { s += 6; if (p.cards.some(c => c.sci === card.sci)) s += 15; }
+    if (card.mil && mil <= -6) s += card.mil * 15;
+    return s - cc.c * 1.5;
+  };
+
+  const evalWonder = (w, p, o, mil, wBuilt) => {
+    const cc = calcCost(w.cost, getProd(p.cards, p.wonders), getProd(o.cards, o.wonders));
+    if (cc.c > p.coins) return -1000;
+    let s = (w.pts||0) * 10 + (w.coins||0) * 2 + (w.mil||0) * 8;
+    if (w.extraTurn) s += 12;
+    if (w.opponentLoses) s += w.opponentLoses * 3;
+    if (wBuilt === 6) s += 50;
+    return s - cc.c * 1.5;
+  };
+
+  const aiTurn = (g) => {
+    const p = g.p2, o = g.p1;
+    const acc = g.pyr.filter(pos => !pos.t && pos.up && isAcc(g.pyr, pos, g.age));
+    if (!acc.length) return null;
+    let best = null, bestS = -Infinity;
+    acc.forEach(pos => {
+      const s = evalCard(pos.card, p, o, g.mil);
+      if (s > bestS) { bestS = s; best = { t: 'build', pos }; }
+    });
+    const uw = p.wonders.filter(w => !w.built);
+    if (uw.length && g.wBuilt < 7) {
+      acc.forEach(pos => uw.forEach(w => {
+        const s = evalWonder(w, p, o, g.mil, g.wBuilt);
+        if (s > bestS) { bestS = s; best = { t: 'wonder', pos, w }; }
+      }));
+    }
+    if (bestS < 0) {
+      let worst = acc[0], worstS = Infinity;
+      acc.forEach(pos => { const s = evalCard(pos.card, p, o, g.mil); if (s < worstS) { worstS = s; worst = pos; } });
+      best = { t: 'discard', pos: worst };
+    }
+    return best;
+  };
+
+  const execAI = (a) => {
+    if (!a || !game) return;
+    const p = game.p2, o = game.p1, pos = a.pos;
+    if (a.t === 'build') {
+      const cc = calcCost(pos.card.cost, getProd(p.cards, p.wonders), getProd(o.cards, o.wonders));
+      const newCards = [...p.cards, pos.card];
+      let mil = { m: game.mil, lost: 0, win: false, victor: null };
+      if (pos.card.mil) mil = applyMil(game.mil, pos.card.mil, 2);
+      const newO = {...o, coins: Math.max(0, o.coins - mil.lost)};
+      const sciV = getSci(newCards).victory;
+      setMsg(`AI: ${pos.card.name}`);
+      setGame({...game, pyr: reveal(game.pyr, pos, game.age), p1: newO,
+        p2: {...p, coins: p.coins - cc.c + (pos.card.coins||0), cards: newCards},
+        turn: 1, mil: mil.m, winner: mil.win ? mil.victor : (sciV ? 2 : null), reason: mil.win ? 'military' : (sciV ? 'science' : null)
+      });
+    } else if (a.t === 'wonder') {
+      const w = a.w;
+      const cc = calcCost(w.cost, getProd(p.cards, p.wonders), getProd(o.cards, o.wonders));
+      const newWB = game.wBuilt + 1;
+      let mil = { m: game.mil, lost: 0, win: false, victor: null };
+      if (w.mil) mil = applyMil(game.mil, w.mil, 2);
+      const newO = {...o, coins: Math.max(0, o.coins - mil.lost - (w.opponentLoses||0))};
+      const next = w.extraTurn && newWB < 7 ? 2 : 1;
+      let winner = null, reason = null;
+      if (mil.win) { winner = mil.victor; reason = 'military'; }
+      else if (newWB >= 7) { reason = 'wonder'; }
+      const ng = {...game, pyr: reveal(game.pyr, pos, game.age), p1: newO,
+        p2: {...p, coins: p.coins - cc.c + (w.coins||0), wonders: p.wonders.map(ww => ww.id === w.id ? {...ww, built: true} : ww)},
+        turn: next, mil: mil.m, wBuilt: newWB, winner, reason
+      };
+      if (reason === 'wonder') {
+        const p1T = getPts(ng.p1, ng.p2) + (ng.mil > 0 ? getMilPts(ng.mil) : 0) + Math.floor(ng.p1.coins / 3);
+        const p2T = getPts(ng.p2, ng.p1) + (ng.mil < 0 ? getMilPts(ng.mil) : 0) + Math.floor(ng.p2.coins / 3);
+        ng.winner = p1T >= p2T ? 1 : 2;
+      }
+      setMsg(`AI: ${w.name}`);
+      setGame(ng);
+    } else {
+      const val = 2 + getYellow(p);
+      setMsg(`AI: discard +${val}💰`);
+      setGame({...game, pyr: reveal(game.pyr, pos, game.age), p2: {...p, coins: p.coins + val}, turn: 1, disc: [...game.disc, pos.card]});
     }
   };
 
   useEffect(() => {
     if (!game || !vsAI || game.turn !== 2 || game.winner) return;
-    const cardsLeft = game.pyr.filter(p => !p.taken).length;
-    if (cardsLeft === 0) return;
-    setAiThinking(true);
-    const timer = setTimeout(() => {
-      const action = aiTakeTurn(game);
-      if (action) executeAIAction(action);
-      setAiThinking(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    if (!game.pyr.some(p => !p.t)) return;
+    setAiThink(true);
+    const t = setTimeout(() => { const a = aiTurn(game); if (a) execAI(a); setAiThink(false); }, 700);
+    return () => clearTimeout(t);
   }, [game, vsAI]);
 
   if (!game) {
     return (
-      <div style={{minHeight:'100vh',background:'linear-gradient(135deg,#2c1810,#6b4423)',display:'flex',alignItems:'center',justifyContent:'center',color:'#f4e4c1',padding:'20px'}}>
+      <div style={{height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#f4e4c1'}}>
         <div style={{textAlign:'center'}}>
-          <h1 style={{fontSize:'2.2rem',marginBottom:'20px'}}>7 Wonders Duel</h1>
-          <p style={{marginBottom:'25px',color:'#c9a227'}}>A civilization-building card game</p>
-          <div style={{display:'flex',flexDirection:'column',gap:'12px',alignItems:'center'}}>
-            <button onClick={() => startGame(false)} style={{padding:'12px 35px',fontSize:'1.1rem',background:'linear-gradient(135deg,#8b6914,#c9a227)',border:'2px solid #f4e4c1',borderRadius:'8px',color:'#2c1810',fontWeight:'bold',cursor:'pointer',width:'220px'}}>2 Players</button>
-            <button onClick={() => startGame(true)} style={{padding:'12px 35px',fontSize:'1.1rem',background:'linear-gradient(135deg,#1a5c1a,#2a8c2a)',border:'2px solid #f4e4c1',borderRadius:'8px',color:'#fff',fontWeight:'bold',cursor:'pointer',width:'220px'}}>vs AI 🤖</button>
-          </div>
+          <h1 style={{fontSize:'1.8rem',marginBottom:'8px'}}>7 Wonders Duel</h1>
+          <button onClick={() => start(false)} style={{display:'block',margin:'8px auto',padding:'10px 25px',background:'linear-gradient(135deg,#8b6914,#c9a227)',border:'2px solid #f4e4c1',borderRadius:'6px',color:'#2c1810',fontWeight:'bold',cursor:'pointer'}}>2 Players</button>
+          <button onClick={() => start(true)} style={{display:'block',margin:'8px auto',padding:'10px 25px',background:'linear-gradient(135deg,#1a5c1a,#2a8c2a)',border:'2px solid #f4e4c1',borderRadius:'6px',color:'#fff',fontWeight:'bold',cursor:'pointer'}}>vs AI 🤖</button>
         </div>
       </div>
     );
   }
 
-  const cardsLeft = game.pyr.filter(p => !p.taken).length;
-  const curP = game.turn === 1 ? game.p1 : game.p2;
-  const curOpp = game.turn === 1 ? game.p2 : game.p1;
-  const curProd = getProd(curP.cards, curP.wonders);
-  const oppProd = getProd(curOpp.cards, curOpp.wonders);
-  const ageComplete = cardsLeft === 0 && !game.winner;
-  const yellowCount = getYellowCount(curP);
-  const isAITurn = vsAI && game.turn === 2 && !game.winner && !ageComplete;
+  const left = game.pyr.filter(p => !p.t).length;
+  const cur = game.turn === 1 ? game.p1 : game.p2;
+  const opp = game.turn === 1 ? game.p2 : game.p1;
+  const curProd = getProd(cur.cards, cur.wonders);
+  const oppProd = getProd(opp.cards, opp.wonders);
+  const done = left === 0 && !game.winner;
+  const isAIT = vsAI && game.turn === 2 && !game.winner && !done;
 
-  const milPositions = [];
-  for (let mi = -9; mi <= 9; mi++) milPositions.push(mi);
-
-  const renderCardContent = (card, isSmall) => {
-    const titleSize = isSmall ? '0.6rem' : '0.7rem';
-    const symbolSize = isSmall ? '1rem' : '1.2rem';
-    const smallText = isSmall ? '0.55rem' : '0.6rem';
+  // End game
+  if (game.winner || (done && game.age >= 3)) {
+    const p1T = getPts(game.p1, game.p2) + (game.mil > 0 ? getMilPts(game.mil) : 0) + Math.floor(game.p1.coins / 3);
+    const p2T = getPts(game.p2, game.p1) + (game.mil < 0 ? getMilPts(game.mil) : 0) + Math.floor(game.p2.coins / 3);
+    const w = game.winner || (p1T >= p2T ? 1 : 2);
     return (
-      <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',padding:'1px'}}>
-        <div style={{fontWeight:'bold',fontSize:titleSize,marginBottom:'1px',textAlign:'center',lineHeight:1.1}}>{card.name}</div>
-        {card.prod && <div style={{fontSize:symbolSize,lineHeight:1}}>{Object.entries(card.prod).map(([k,v]) => `${v>1?v:''}${RES_ICON[k]}`).join('')}</div>}
-        <div style={{fontSize:symbolSize,lineHeight:1}}>{card.pts ? `★${card.pts}` : ''}{card.mil ? `⚔${card.mil}` : ''}{card.sci ? '🔬' : ''}</div>
-        {card.type === 'yellow' && card.coins && <div style={{fontSize:symbolSize,lineHeight:1}}>+{card.coins}💰</div>}
-        {card.type === 'purple' && <div style={{textAlign:'center'}}>
-          {card.coins && <div style={{fontSize:'0.9rem'}}>+{card.coins}💰</div>}
-          {card.ptsPer && <div style={{background:'rgba(255,255,255,0.25)',padding:'1px 3px',borderRadius:'3px',fontSize:smallText,border:'1px solid #fc0'}}>{card.ptsPer.label}</div>}
-        </div>}
+      <div style={{height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#f4e4c1'}}>
+        <div style={{background:'rgba(0,0,0,0.8)',border:'2px solid gold',borderRadius:'10px',padding:'20px',textAlign:'center'}}>
+          <h2>{game.reason === 'military' ? '⚔️ Military!' : game.reason === 'science' ? '🔬 Science!' : game.reason === 'wonder' ? '🏛 7th Wonder!' : '🏆 Game Over!'}</h2>
+          <p>{vsAI?'You':'P1'}: {p1T}★ | {vsAI?'AI':'P2'}: {p2T}★</p>
+          <p style={{fontSize:'1.3rem',color:'gold'}}>{vsAI?(w===1?'You Win!':'AI Wins!'):`P${w} Wins!`}</p>
+          <button onClick={() => setGame(null)} style={{marginTop:'10px',padding:'8px 20px',background:'#c9a227',border:'none',borderRadius:'5px',fontWeight:'bold',cursor:'pointer'}}>Again</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (done && game.age < 3) {
+    return (
+      <div style={{height:'100%',display:'flex',alignItems:'center',justifyContent:'center',color:'#f4e4c1'}}>
+        <div style={{background:'rgba(0,0,0,0.8)',border:'2px solid gold',borderRadius:'10px',padding:'20px',textAlign:'center'}}>
+          <h2>Age {game.age} Complete!</h2>
+          <button onClick={nextAge} style={{marginTop:'10px',padding:'8px 20px',background:'#c9a227',border:'none',borderRadius:'5px',fontWeight:'bold',cursor:'pointer'}}>Age {game.age+1} →</button>
+        </div>
+      </div>
+    );
+  }
+
+  // Pyramid card
+  const PCard = ({pos}) => {
+    const acc = isAcc(game.pyr, pos, game.age);
+    const card = pos.card;
+    const cc = calcCost(card.cost, curProd, oppProd);
+    const canClick = acc && !game.winner && !isAIT && pos.up;
+    const W = 58, H = 72;
+    
+    // Position
+    let x, y;
+    if (game.age === 3) {
+      const cfg = {0:{w:4,off:0},1:{w:3,off:0.5},2:{w:4,off:0},3:{w:2,off:1},4:{w:4,off:0},5:{w:3,off:0.5},6:{w:4,off:0}};
+      const c = cfg[pos.r] || {w:4,off:0};
+      const rc = game.pyr.filter(p => p.r === pos.r);
+      const idx = rc.findIndex(p => p.c === pos.c);
+      x = (c.off + idx) * (W + 2);
+      y = pos.r * 32;
+    } else {
+      const rc = game.pyr.filter(p => p.r === pos.r);
+      const minC = Math.min(...rc.map(p => p.c));
+      const maxC = Math.max(...rc.map(p => p.c));
+      const rw = (maxC - minC) * (W + 2) + W;
+      const tw = 370;
+      const ox = (tw - rw) / 2;
+      x = ox + (pos.c - minC) * (W + 2);
+      y = pos.r * 32;
+    }
+
+    if (pos.t) return <div style={{position:'absolute',left:x,top:y,width:W,height:H,background:'rgba(255,255,255,0.03)',borderRadius:3,zIndex:pos.r*10+pos.c}}></div>;
+    if (!pos.up) return <div style={{position:'absolute',left:x,top:y,width:W,height:H,background:'linear-gradient(135deg,#3a2414,#5a3a24)',border:'1px solid #555',borderRadius:3,display:'flex',alignItems:'center',justifyContent:'center',zIndex:pos.r*10+pos.c}}><span style={{fontSize:'1.2rem',color:'#c9a227'}}>?</span></div>;
+
+    return (
+      <div onClick={() => canClick && (setSel(pos), setWMode(null))} style={{
+        position:'absolute',left:x,top:y,width:W,height:H,background:COLORS[card.type],
+        border:sel===pos?'2px solid gold':acc?'1px solid #c9a227':'1px solid #444',
+        borderRadius:3,cursor:canClick?'pointer':'default',opacity:acc?1:0.5,
+        display:'flex',flexDirection:'column',padding:'2px',color:'#fff',
+        boxShadow:sel===pos?'0 0 6px gold':'none',zIndex:sel===pos?100:pos.r*10+pos.c,overflow:'hidden'
+      }}>
+        <div style={{fontSize:'0.45rem',fontWeight:'bold',lineHeight:1,marginBottom:1}}>{card.name}</div>
+        <div style={{fontSize:'0.4rem',color:'#ffc'}}>
+          {Object.entries(cc.res).map(([k,v]) => `${v}${RES[k]}`).join('')}
+          {card.cost?.coin ? `${card.cost.coin}💰` : ''}
+          {!Object.keys(cc.res).length && !card.cost?.coin && 'Free'}
+        </div>
+        <div style={{fontSize:'0.8rem',lineHeight:1}}>
+          {card.prod && Object.entries(card.prod).map(([k,v]) => (v>1?v:'')+RES[k]).join('')}
+          {card.pts ? `★${card.pts}` : ''}{card.mil ? `⚔${card.mil}` : ''}
+          {card.sci && SCI[card.sci]}{card.coins ? `+${card.coins}💰` : ''}
+        </div>
+        {card.ptsPer && <div style={{fontSize:'0.35rem',background:'rgba(255,255,255,0.2)',padding:'0 2px',borderRadius:2}}>{card.ptsPer.value}★/{card.ptsPer.types?'🟤⚪':card.ptsPer.type==='wonder'?'🏛':card.ptsPer.type==='coin'?'💰':card.ptsPer.type[0].toUpperCase()}</div>}
+        {acc && <div style={{fontSize:'0.4rem',color:cur.coins>=cc.c?'#8f8':'#f88',marginTop:'auto'}}>{cc.c}💰</div>}
       </div>
     );
   };
 
-  return (
-    <div style={{minHeight:'100vh',background:'linear-gradient(135deg,#2c1810,#6b4423)',color:'#f4e4c1',padding:'15px',overflowX:'auto'}}>
-      <div style={{maxWidth:'1300px',margin:'0 auto',minWidth:'850px'}}>
-        
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px',flexWrap:'wrap',gap:'8px'}}>
-          <h2 style={{margin:0,fontSize:'1.2rem'}}>
-            {game.winner ? (vsAI && game.winner === 2 ? 'AI Wins!' : `Player ${game.winner} Wins!`) : (isAITurn ? `Age ${game.age} - AI Thinking...` : `Age ${game.age} - ${vsAI ? 'Your' : `Player ${game.turn}'s`} Turn`)}
-            {vsAI && <span style={{marginLeft:'10px',fontSize:'0.8rem',color:'#2a8c2a'}}>🤖 vs AI</span>}
-          </h2>
-          <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
-            <span style={{color:'#c9a227',fontSize:'0.85rem'}}>Cards:{cardsLeft} Wonders:{game.totalWondersBuilt}/7</span>
-            <button onClick={() => setGame(null)} style={{padding:'5px 10px',background:'#8b4513',border:'2px solid #f4e4c1',borderRadius:'5px',color:'#fff',cursor:'pointer',fontSize:'0.85rem'}}>Menu</button>
-          </div>
+  // Military
+  const Mil = () => (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:1,padding:'2px 0'}}>
+      <span style={{fontSize:'0.5rem',color:'#6af'}}>{vsAI?'AI':'P2'}</span>
+      {Array.from({length:19}, (_,i) => i-9).map(p => {
+        const tok = game.mil === p;
+        const ms = Math.abs(p) === 3 || Math.abs(p) === 6;
+        const cap = Math.abs(p) === 9;
+        return <div key={p} style={{width:cap?16:ms?13:8,height:18,background:p===0?'#444':p<0?(cap?'#003':ms?'#258':'#234'):(cap?'#300':ms?'#852':'#432'),border:tok?'2px solid gold':'1px solid #333',borderRadius:2,display:'flex',alignItems:'center',justifyContent:'center',fontSize:tok?'0.5rem':'0.4rem',color:'#fff',boxShadow:tok?'0 0 4px gold':'none'}}>{tok?'⚔️':ms?(Math.abs(p)===3?'2':'5'):cap?'☠':''}
+        </div>;
+      })}
+      <span style={{fontSize:'0.5rem',color:'#fa6'}}>{vsAI?'You':'P1'}</span>
+    </div>
+  );
+
+  // Player panel
+  const Panel = ({pNum}) => {
+    const p = pNum === 1 ? game.p1 : game.p2;
+    const op = pNum === 1 ? game.p2 : game.p1;
+    const act = game.turn === pNum;
+    const lbl = vsAI ? (pNum === 1 ? 'You' : 'AI') : `P${pNum}`;
+    const mB = (pNum === 1 && game.mil > 0) || (pNum === 2 && game.mil < 0);
+    const sci = getSci(p.cards);
+    const show = pNum === 1 ? showP1 : showP2;
+    const setShow = pNum === 1 ? setShowP1 : setShowP2;
+
+    return (
+      <div style={{background:'rgba(0,0,0,0.4)',border:act?'2px solid gold':'1px solid #555',borderRadius:5,padding:4,flex:1,fontSize:'0.6rem',overflow:'hidden'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <b>{lbl}</b>
+          <span>💰{p.coins} ★{getPts(p,op)}{mB?`+${getMilPts(game.mil)}`:''}{sci.pts>0?` 🔬+${sci.pts}`:''}</span>
         </div>
-
-        {aiThinking && <div style={{background:'rgba(42,140,42,0.3)',border:'2px solid #2a8c2a',borderRadius:'5px',padding:'10px',marginBottom:'12px',textAlign:'center',fontSize:'1rem'}}>🤖 AI is thinking...</div>}
-        {message && !aiThinking && <div style={{background:'rgba(201,162,39,0.3)',border:'2px solid #c9a227',borderRadius:'5px',padding:'6px 12px',marginBottom:'12px',textAlign:'center',fontSize:'0.9rem'}}>{message}<button onClick={() => setMessage(null)} style={{marginLeft:'10px',padding:'1px 6px',background:'#666',border:'none',borderRadius:'3px',color:'#fff',cursor:'pointer'}}>✕</button></div>}
-
-        <div style={{background:'rgba(0,0,0,0.3)',borderRadius:'8px',padding:'12px',marginBottom:'15px'}}>
-          <div style={{textAlign:'center',marginBottom:'8px',fontSize:'0.9rem',fontWeight:'bold'}}>Military Track</div>
-          <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:'1px'}}>
-            {milPositions.map(p => {
-              const isTok = game.military === p;
-              const isMS = Math.abs(p) === 3 || Math.abs(p) === 6;
-              const isCap = Math.abs(p) === 9;
-              const bg = p === 0 ? '#555' : p < 0 ? (isCap ? '#006' : isMS ? '#369' : '#335') : (isCap ? '#600' : isMS ? '#963' : '#533');
-              return <div key={p} style={{width: isCap ? '28px' : isMS ? '24px' : '16px', height: '32px', background: bg, border: isTok ? '2px solid gold' : '1px solid #666', borderRadius: '3px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#fff', boxShadow: isTok ? '0 0 8px gold' : 'none'}}>{isTok && '⚔️'}{!isTok && isMS && (Math.abs(p) === 3 ? '2' : '5')}{!isTok && isCap && '☠️'}</div>;
-            })}
-          </div>
-          <div style={{display:'flex',justifyContent:'space-between',marginTop:'4px',fontSize:'0.7rem'}}><span style={{color:'#6af'}}>← {vsAI ? 'AI' : 'P2'}</span><span style={{color:'#fa6'}}>{vsAI ? 'You' : 'P1'} →</span></div>
-        </div>
-
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'12px',marginBottom:'12px'}}>
-          {[1, 2].map(pNum => {
-            const p = pNum === 1 ? game.p1 : game.p2;
-            const isActive = game.turn === pNum;
-            const expanded = pNum === 1 ? p1Expanded : p2Expanded;
-            const setExpanded = pNum === 1 ? setP1Expanded : setP2Expanded;
-            const wondersExp = pNum === 1 ? p1WondersExp : p2WondersExp;
-            const setWondersExp = pNum === 1 ? setP1WondersExp : setP2WondersExp;
-            const label = vsAI ? (pNum === 1 ? 'You' : 'AI 🤖') : `Player ${pNum}`;
-            const milBonus = (pNum === 1 && game.military > 0) || (pNum === 2 && game.military < 0);
-            
+        <div style={{display:'flex',gap:2,flexWrap:'wrap',marginTop:3}}>
+          {p.wonders.map(w => {
+            const isSel = wMode?.id === w.id;
+            const canSel = act && sel && !w.built && !(vsAI && pNum === 2) && game.wBuilt < 7;
+            const cc = calcCost(w.cost, curProd, oppProd);
             return (
-              <div key={pNum} style={{background:'rgba(0,0,0,0.3)',border:isActive?'3px solid gold':'2px solid #666',borderRadius:'8px',padding:'10px'}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <h3 style={{margin:0,fontSize:'1rem'}}>{label}</h3>
-                  <button onClick={() => setExpanded(!expanded)} style={{padding:'3px 6px',background:expanded?'#c9a227':'#555',border:'1px solid #888',borderRadius:'3px',color:'#fff',cursor:'pointer',fontSize:'0.7rem'}}>Cards({p.cards.length})</button>
-                </div>
-                <div style={{marginTop:'6px',fontSize:'0.85rem'}}>💰{p.coins} ★{getPts(p)}{milBonus ? ` +${getMilPts(game.military)}⚔️` : ''}</div>
-                <div style={{fontSize:'0.75rem',color:'#c9a227'}}>Prod: {getProdDisplay(getProd(p.cards, p.wonders))}</div>
-                <div style={{fontSize:'0.7rem',color:'#daa520'}}>Yellow: {getYellowCount(p)} (Discard: +{2 + getYellowCount(p)}💰)</div>
-                
-                <div style={{marginTop:'6px'}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                    <span style={{fontSize:'0.8rem',color:'#c9a227'}}>Wonders:</span>
-                    <button onClick={() => setWondersExp(!wondersExp)} style={{padding:'1px 5px',background:'#555',border:'1px solid #888',borderRadius:'3px',color:'#fff',cursor:'pointer',fontSize:'0.65rem'}}>{wondersExp ? '▼' : '▶'}</button>
-                  </div>
-                  {wondersExp && <div style={{display:'flex',gap:'5px',marginTop:'6px',overflowX:'auto',paddingBottom:'4px'}}>
-                    {p.wonders.map(w => {
-                      const isSel = wonderMode && wonderMode.id === w.id;
-                      const canSel = isActive && sel && !w.built && !(vsAI && pNum === 2);
-                      const cc = calcCost(w.cost, curProd, oppProd);
-                      return (
-                        <div key={w.id} onClick={() => canSel && selWonder(w)} style={{width:'120px',minHeight:'100px',background:w.built?'#222':'linear-gradient(135deg,#408,#808)',border:isSel?'3px solid gold':w.built?'2px solid #444':'2px solid #a80',borderRadius:'6px',padding:'6px',color:'#fff',opacity:w.built?0.5:1,cursor:canSel?'pointer':'default',flexShrink:0,boxShadow:isSel?'0 0 12px gold':'none'}}>
-                          <div style={{fontWeight:'bold',fontSize:'0.65rem',marginBottom:'4px'}}>{w.name}</div>
-                          {w.built ? <div style={{color:'#8f8',fontSize:'0.65rem'}}>✓ Built</div> : <div>
-                            <div style={{fontSize:'0.55rem',color:'#ddd',marginBottom:'2px'}}>{Object.entries(w.cost).map(([k,v]) => `${v}${RES_ICON[k]||k}`).join(' ')}</div>
-                            {sel && canSel && <div style={{fontSize:'0.55rem',color:curP.coins >= cc.coinCost ? '#8f8' : '#f88'}}>= {cc.coinCost}💰</div>}
-                          </div>}
-                          <div style={{fontSize:'0.55rem',marginTop:'4px',color:'#fc0'}}>{w.pts > 0 && `★${w.pts} `}{w.mil && `⚔️${w.mil} `}{w.coins && `+${w.coins}💰 `}{w.extraTurn && '🔄'}</div>
-                        </div>
-                      );
-                    })}
-                  </div>}
-                </div>
-                
-                {expanded && p.cards.length > 0 && <div style={{marginTop:'8px',padding:'6px',background:'rgba(0,0,0,0.2)',borderRadius:'5px',overflowX:'auto'}}>
-                  <div style={{display:'flex',gap:'4px',flexWrap:'wrap'}}>
-                    {p.cards.map((c, i) => <div key={i} style={{width:'70px',minHeight:'85px',background:COLORS[c.type],border:'1px solid #c9a227',borderRadius:'4px',color:'#fff',textAlign:'center',fontSize:'0.55rem',flexShrink:0}}>{renderCardContent(c, true)}</div>)}
-                  </div>
-                </div>}
+              <div key={w.id} onClick={() => canSel && setWMode(w)} style={{
+                width:68,background:w.built?'#222':'linear-gradient(135deg,#408,#808)',
+                border:isSel?'2px solid gold':w.built?'1px solid #444':'1px solid #a80',
+                borderRadius:3,padding:2,opacity:w.built?0.5:1,cursor:canSel?'pointer':'default'
+              }}>
+                <div style={{fontSize:'0.4rem',fontWeight:'bold'}}>{w.name}</div>
+                {w.built ? <span style={{color:'#8f8',fontSize:'0.5rem'}}>✓</span> : <>
+                  <div style={{fontSize:'0.4rem'}}>{Object.entries(w.cost).map(([k,v])=>`${v}${RES[k]}`).join('')}</div>
+                  <div style={{fontSize:'0.5rem'}}>{w.pts>0&&`★${w.pts}`}{w.mil&&`⚔${w.mil}`}{w.coins&&`+${w.coins}💰`}{w.extraTurn&&'🔄'}</div>
+                  {sel && canSel && <div style={{fontSize:'0.4rem',color:cur.coins>=cc.c?'#8f8':'#f88'}}>{cc.c}💰</div>}
+                </>}
               </div>
             );
           })}
         </div>
-
-        <div style={{background:'rgba(0,0,0,0.3)',borderRadius:'8px',padding:'12px',marginBottom:'12px',overflowX:'auto'}}>
-          <div style={{textAlign:'center',marginBottom:'12px',fontWeight:'bold'}}>Age {game.age} Pyramid {game.age === 2 && '(Top → Bottom)'}</div>
-          <div style={{position:'relative',margin:'0 auto',width:'520px',height:'290px'}}>
-            {game.pyr.map((pos, idx) => {
-              const cardW = 75, cardH = 95;
-              const overlapY = 50;
-              
-              // Calculate position - no horizontal overlap, just vertical
-              const rowCards = game.pyr.filter(p => p.r === pos.r);
-              const minC = Math.min(...rowCards.map(p => p.c));
-              const maxC = Math.max(...rowCards.map(p => p.c));
-              const rowWidth = (maxC - minC) * (cardW + 4) + cardW;
-              const totalWidth = 520;
-              const offsetX = (totalWidth - rowWidth) / 2;
-              const x = offsetX + (pos.c - minC) * (cardW + 4);
-              const y = pos.r * overlapY;
-              
-              const acc = isAcc(pos);
-              const card = pos.card;
-              const cc = calcCost(card.cost, curProd, oppProd);
-              const canClick = acc && !game.winner && !isAITurn && !pos.taken && pos.up;
-              
-              if (pos.taken) {
-                return <div key={idx} style={{position:'absolute',left:x,top:y,width:cardW,height:cardH,background:'rgba(255,255,255,0.05)',borderRadius:'6px',border:'1px dashed rgba(255,255,255,0.1)',zIndex:pos.r*10+pos.c}}></div>;
-              }
-              if (!pos.up) {
-                return <div key={idx} style={{position:'absolute',left:x,top:y,width:cardW,height:cardH,background:'linear-gradient(135deg,#3a2414,#5a3a24)',border:'2px solid #666',borderRadius:'6px',display:'flex',alignItems:'flex-start',justifyContent:'center',paddingTop:'8px',zIndex:pos.r*10+pos.c}}><span style={{fontSize:'1.8rem',color:'#c9a227'}}>?</span></div>;
-              }
-              
-              return (
-                <div key={idx} onClick={() => canClick && (setSel(pos), setWonderMode(null))} style={{
-                  position:'absolute',left:x,top:y,width:cardW,height:cardH,
-                  background:COLORS[card.type],
-                  border:sel===pos?'3px solid gold':acc?'2px solid #c9a227':'2px solid #555',
-                  borderRadius:'6px',cursor:canClick?'pointer':'default',
-                  opacity:acc?1:0.6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'flex-start',
-                  padding:'4px 3px',color:'#fff',textAlign:'center',
-                  boxShadow:sel===pos?'0 0 12px gold':'0 2px 4px rgba(0,0,0,0.4)',
-                  zIndex:sel===pos?100:pos.r*10+pos.c
-                }}>
-                  {renderCardContent(card, false)}
-                  {acc && <div style={{fontSize:'0.6rem',color:curP.coins >= cc.coinCost ? '#8f8' : '#f88'}}>({cc.coinCost}💰)</div>}
-                </div>
-              );
-            })}
-          </div>
+        <div style={{display:'flex',alignItems:'center',gap:3,marginTop:3}}>
+          <span style={{color:'#c9a227'}}>🃏{p.cards.length}</span>
+          <button onClick={() => setShow(!show)} style={{padding:'1px 4px',background:'#555',border:'none',borderRadius:2,color:'#fff',cursor:'pointer',fontSize:'0.5rem'}}>{show?'Hide':'Show'}</button>
         </div>
-
-        {sel && !game.winner && !ageComplete && !isAITurn && (
-          <div style={{background:'rgba(139,105,20,0.4)',border:'3px solid gold',borderRadius:'8px',padding:'15px'}}>
-            {wonderMode ? <div>
-              <div style={{marginBottom:'10px'}}><strong>Build Wonder:</strong> {wonderMode.name}<br/><span style={{fontSize:'0.85rem'}}>Using: {sel.card.name}</span></div>
-              <div style={{display:'flex',gap:'8px'}}>
-                <button onClick={buildWonder} style={{padding:'10px 20px',background:'#808',border:'2px solid #f4e4c1',borderRadius:'5px',color:'#fff',fontWeight:'bold',cursor:'pointer'}}>✓ Build Wonder</button>
-                <button onClick={() => setWonderMode(null)} style={{padding:'10px 20px',background:'#8b4513',border:'2px solid #f4e4c1',borderRadius:'5px',color:'#fff',fontWeight:'bold',cursor:'pointer'}}>✕ Cancel</button>
+        {show && p.cards.length > 0 && (
+          <div style={{display:'flex',gap:2,flexWrap:'wrap',marginTop:3}}>
+            {p.cards.map((c,i) => (
+              <div key={i} style={{width:42,background:COLORS[c.type],borderRadius:2,padding:1,fontSize:'0.35rem',color:'#fff'}}>
+                <div style={{fontWeight:'bold'}}>{c.name}</div>
+                <div style={{fontSize:'0.5rem'}}>{c.prod&&Object.entries(c.prod).map(([k,v])=>RES[k]).join('')}{c.pts?`★${c.pts}`:''}{c.mil?`⚔${c.mil}`:''}{c.sci&&SCI[c.sci]}</div>
               </div>
-            </div> : <div>
-              <div style={{marginBottom:'8px'}}><strong>Selected:</strong> {sel.card.name}<span style={{marginLeft:'10px',fontSize:'0.85rem',color:'#c9a227'}}>{calcCost(sel.card.cost, curProd, oppProd).details}</span></div>
-              <div style={{display:'flex',gap:'8px',flexWrap:'wrap'}}>
-                <button onClick={buildCard} style={{padding:'10px 20px',background:'#228b22',border:'2px solid #f4e4c1',borderRadius:'5px',color:'#fff',fontWeight:'bold',cursor:'pointer'}}>✓ Build</button>
-                <button onClick={discardCard} style={{padding:'10px 20px',background:'#666',border:'2px solid #f4e4c1',borderRadius:'5px',color:'#fff',fontWeight:'bold',cursor:'pointer'}}>Discard +{2 + yellowCount}💰</button>
-                <button onClick={() => setSel(null)} style={{padding:'10px 20px',background:'#8b4513',border:'2px solid #f4e4c1',borderRadius:'5px',color:'#fff',fontWeight:'bold',cursor:'pointer'}}>✕ Cancel</button>
-              </div>
-              <div style={{marginTop:'8px',fontSize:'0.8rem',color:'#c9a227'}}>Or click a Wonder to build it with this card</div>
-            </div>}
+            ))}
           </div>
         )}
+      </div>
+    );
+  };
 
-        {ageComplete && game.age < 3 && (
-          <div style={{background:'rgba(201,162,39,0.3)',border:'3px solid gold',borderRadius:'8px',padding:'25px',textAlign:'center',marginTop:'15px'}}>
-            <h2 style={{margin:'0 0 10px 0'}}>Age {game.age} Complete!</h2>
-            <p style={{margin:'0 0 15px 0'}}>{vsAI ? 'You' : 'P1'}: {getPts(game.p1)}★ | {vsAI ? 'AI' : 'P2'}: {getPts(game.p2)}★</p>
-            <button onClick={startNextAge} style={{padding:'12px 30px',fontSize:'1.1rem',background:'linear-gradient(135deg,#8b6914,#c9a227)',border:'2px solid #f4e4c1',borderRadius:'6px',color:'#2c1810',fontWeight:'bold',cursor:'pointer'}}>Begin Age {game.age + 1} →</button>
-          </div>
-        )}
+  // Action panel
+  const Act = () => {
+    if (!sel || game.winner || done || isAIT) return null;
+    const cc = calcCost(sel.card.cost, curProd, oppProd);
+    return (
+      <div style={{background:'rgba(100,50,0,0.9)',border:'2px solid gold',borderRadius:5,padding:6,display:'flex',flexDirection:'column',gap:4,width:100,flexShrink:0}}>
+        <div style={{fontSize:'0.6rem',fontWeight:'bold',textAlign:'center'}}>{sel.card.name}</div>
+        <div style={{fontSize:'0.5rem',textAlign:'center'}}>
+          {Object.entries(cc.res).map(([k,v])=>`${v}${RES[k]}`).join(' ')}
+          {sel.card.cost?.coin ? ` ${sel.card.cost.coin}💰` : ''}
+        </div>
+        <div style={{fontSize:'0.55rem',textAlign:'center',color:cur.coins>=cc.c?'#8f8':'#f88'}}>= {cc.c}💰</div>
+        {wMode ? <>
+          <div style={{fontSize:'0.5rem',textAlign:'center'}}>→ {wMode.name}</div>
+          <button onClick={buildW} style={{padding:4,background:'#808',border:'1px solid #fff',borderRadius:3,color:'#fff',fontWeight:'bold',cursor:'pointer',fontSize:'0.55rem'}}>Build Wonder</button>
+          <button onClick={() => setWMode(null)} style={{padding:2,background:'#555',border:'none',borderRadius:3,color:'#fff',cursor:'pointer',fontSize:'0.5rem'}}>Cancel</button>
+        </> : <>
+          <button onClick={build} disabled={cur.coins<cc.c} style={{padding:4,background:cur.coins>=cc.c?'#282':'#555',border:'1px solid #fff',borderRadius:3,color:'#fff',fontWeight:'bold',cursor:'pointer',fontSize:'0.55rem',opacity:cur.coins>=cc.c?1:0.5}}>Build</button>
+          <button onClick={discard} style={{padding:2,background:'#555',border:'none',borderRadius:3,color:'#fff',cursor:'pointer',fontSize:'0.5rem'}}>Discard +{2+getYellow(cur)}💰</button>
+          <button onClick={() => setSel(null)} style={{padding:2,background:'#633',border:'none',borderRadius:3,color:'#fff',cursor:'pointer',fontSize:'0.5rem'}}>Cancel</button>
+        </>}
+      </div>
+    );
+  };
 
-        {(game.winner || (ageComplete && game.age === 3)) && (
-          <div style={{background:'rgba(201,162,39,0.3)',border:'3px solid gold',borderRadius:'8px',padding:'25px',textAlign:'center',marginTop:'15px'}}>
-            <h2 style={{margin:'0 0 10px 0'}}>{game.winner ? 'Military Victory!' : 'Game Over!'}</h2>
-            <div style={{marginBottom:'15px'}}>
-              <p style={{margin:'5px 0'}}>{vsAI ? 'You' : 'Player 1'}: {getPts(game.p1)}★ {game.military > 0 ? `+ ${getMilPts(game.military)} military` : ''} = {getPts(game.p1) + (game.military > 0 ? getMilPts(game.military) : 0)} total</p>
-              <p style={{margin:'5px 0'}}>{vsAI ? 'AI' : 'Player 2'}: {getPts(game.p2)}★ {game.military < 0 ? `+ ${getMilPts(game.military)} military` : ''} = {getPts(game.p2) + (game.military < 0 ? getMilPts(game.military) : 0)} total</p>
-            </div>
-            {game.winner ? <p style={{color:'gold',fontSize:'1.2rem'}}>{vsAI ? (game.winner === 1 ? 'You win' : 'AI wins') : `Player ${game.winner} wins`} by military supremacy!</p> : <p style={{color:'gold',fontSize:'1.2rem'}}>{(() => {
-              const p1Total = getPts(game.p1) + (game.military > 0 ? getMilPts(game.military) : 0);
-              const p2Total = getPts(game.p2) + (game.military < 0 ? getMilPts(game.military) : 0);
-              if (p1Total > p2Total) return vsAI ? 'You win!' : 'Player 1 wins!';
-              if (p2Total > p1Total) return vsAI ? 'AI wins!' : 'Player 2 wins!';
-              return "It's a tie!";
-            })()}</p>}
-            <button onClick={() => setGame(null)} style={{padding:'12px 30px',fontSize:'1.1rem',background:'linear-gradient(135deg,#8b6914,#c9a227)',border:'2px solid #f4e4c1',borderRadius:'6px',color:'#2c1810',fontWeight:'bold',cursor:'pointer',marginTop:'10px'}}>Play Again</button>
-          </div>
-        )}
+  const pyrH = game.age === 3 ? 250 : 200;
+  const pyrW = game.age === 3 ? 260 : 370;
+
+  return (
+    <div style={{height:'100%',display:'flex',flexDirection:'column',color:'#f4e4c1',overflow:'hidden'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'3px 6px',background:'rgba(0,0,0,0.3)',flexShrink:0}}>
+        <span style={{fontWeight:'bold',fontSize:'0.75rem'}}>{aiThink?'🤖 Thinking...':`Age ${game.age} • ${vsAI?(game.turn===1?'Your turn':'AI'):`P${game.turn}`}`}</span>
+        <div style={{display:'flex',gap:6,alignItems:'center',fontSize:'0.65rem'}}>
+          <span>🃏{left} 🏛{game.wBuilt}/7</span>
+          <button onClick={() => setGame(null)} style={{padding:'2px 6px',background:'#8b4513',border:'1px solid #c9a227',borderRadius:3,color:'#fff',cursor:'pointer',fontSize:'0.6rem'}}>Menu</button>
+        </div>
+      </div>
+      {msg && <div style={{textAlign:'center',padding:2,background:'rgba(201,162,39,0.3)',fontSize:'0.65rem',flexShrink:0}}>{msg}</div>}
+      <Mil />
+      <div style={{display:'flex',gap:4,padding:'0 4px',flexShrink:0}}>
+        <Panel pNum={1} />
+        <Panel pNum={2} />
+      </div>
+      <div style={{flex:1,display:'flex',justifyContent:'center',alignItems:'center',gap:8,padding:4,minHeight:0}}>
+        <div style={{position:'relative',width:pyrW,height:pyrH,flexShrink:0}}>
+          {game.pyr.map((pos,i) => <PCard key={i} pos={pos} />)}
+        </div>
+        <Act />
       </div>
     </div>
   );
